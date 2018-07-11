@@ -13,9 +13,9 @@ extern class logConsole console;
 extern HANDLE hProcess;
 extern DWORD baseAddress;
 
-extern bool func_changename;
-extern bool func_wallhack;
-extern bool func_QQMacro;
+extern bool func_changename,
+func_wallhack,
+func_QQMacro;
 
 extern BYTE orignal_name[72];
 
