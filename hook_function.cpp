@@ -83,9 +83,12 @@ HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3
 	return Returned_Result;
 }
 
-HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 Device_Interface, D3DPRESENT_PARAMETERS* PresentationParameters)
+HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	return Reset_Pointer(Device_Interface, PresentationParameters);
+	g_font_default->OnLostDevice();
+	g_font_default->OnResetDevice();
+
+	return Reset_Pointer(pDevice, pPresentationParameters);
 }
 
 HRESULT GenerateTexture(IDirect3DDevice9 *pD3Ddev, IDirect3DTexture9 **ppD3Dtex, DWORD colour32)
@@ -217,13 +220,12 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 HRESULT WINAPI CreateQuery_Detour(LPDIRECT3DDEVICE9 pDevice, D3DQUERYTYPE Type, IDirect3DQuery9** ppQuery)
 {
-	if (func_wallhack) {
-		//disable occlusion cull
+
 		if (Type == D3DQUERYTYPE_OCCLUSION)
 		{
 			Type = D3DQUERYTYPE_TIMESTAMP;
 		}
-	}
+	
 	return CreateQuery_Pointer(pDevice, Type, ppQuery);
 }
 
