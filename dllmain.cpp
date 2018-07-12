@@ -57,13 +57,15 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 	baseAddress = Memory.getModuleBase(L"AVA.exe", GetCurrentProcessId());
 
 	//start logConsole
-	console.startConsole();
-	console.logMessage("[Message] Debug Console Started...", false);
-
+	
+	console.logMessage("Debug Console Started...", 0);
+	console.logMessage("Debug Console Started...", 1);
+	console.logMessage("Debug Console Started...", 2);
+	console.logMessage("Debug Console Started...", 3);
 	while (1)
 	{
 		Sleep(100);
-		if (GetForegroundWindow() == FindWindowA("LaunchUnrealUWindowsClient", "Alliance of Valiant Arms")) {
+		if (isFocusOnAVA()) {
 
 			if ((GetAsyncKeyState(VK_HOME) & 0x1)) {
 				menu = !menu;

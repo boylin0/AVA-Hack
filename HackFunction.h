@@ -19,6 +19,7 @@ func_QQMacro;
 
 extern BYTE orignal_name[72];
 
+bool isFocusOnAVA();
 void DoQQMacro();
 void ToggleQQMacro();
 void ToggleChangeName();

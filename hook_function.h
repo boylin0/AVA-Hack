@@ -1,11 +1,12 @@
 #pragma once
 #include "stdafx.h"
 #include "d3dMenu.h"
-
+#include "logConsole.h"
 
 extern bool menu;
 extern bool func_wallhack;
 extern class d3dMenu d3dmenu;
+extern class logConsole console;
 
 HRESULT WINAPI Direct3DCreate9_VMTable(VOID);
 HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9, UINT, D3DDEVTYPE, HWND, DWORD, D3DPRESENT_PARAMETERS*, LPDIRECT3DDEVICE9*);

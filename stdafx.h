@@ -16,6 +16,8 @@
 #include <ctime>
 #include <string.h>
 
+#include <iomanip>
+
 #include <d3d9.h>
 #pragma comment(lib, "d3d9.lib")
 
