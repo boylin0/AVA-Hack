@@ -24,7 +24,7 @@ IDirect3DPixelShader9 *Front, *Back;
 HRESULT WINAPI Direct3DCreate9_VMTable(VOID)
 {
 	console.startConsole();
-	console.logMessage("console started...", 0);
+	console.logMessage("Console Started...\n", 0);
 
 	LPDIRECT3D9 Direct3D_Object = Direct3DCreate9(D3D_SDK_VERSION);//get D3D DeviceObject Pointer
 

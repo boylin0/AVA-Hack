@@ -58,10 +58,8 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 
 	//start logConsole
 	
-	console.logMessage("Debug Console Started...", 0);
-	console.logMessage("Debug Console Started...", 1);
-	console.logMessage("Debug Console Started...", 2);
-	console.logMessage("Debug Console Started...", 3);
+	console.logMessage("Game Window Started", 0);
+
 	while (1)
 	{
 		Sleep(100);
@@ -69,15 +67,23 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 
 			if ((GetAsyncKeyState(VK_HOME) & 0x1)) {
 				menu = !menu;
+				console.logMessage("Menu:", 3, true, true, false);
+				console.logMessage( (menu == 1 ? "On":"Off") , 3, false, false, true);
 			}
 			if ((GetAsyncKeyState(VK_F4) & 0x1) && menu) {
 				ToggleWallHack();
+				console.logMessage("function_wallhack:", 3, true, true, false);
+				console.logMessage( (func_wallhack == 1 ? "On" : "Off") , 3, false, false, true);
 			}
 			if ((GetAsyncKeyState(VK_F5) & 0x1) && menu) {
 				ToggleChangeName();
+				console.logMessage("function_changename:", 3, true, true, false);
+				console.logMessage( (func_changename == 1 ? "On" : "Off") , 3, false, false, true);
 			}
 			if ((GetAsyncKeyState(VK_F6) & 0x1) && menu) {
 				ToggleQQMacro();
+				console.logMessage("function_QQMacro:", 3, true, true, false);
+				console.logMessage( (func_QQMacro == 1 ? "On" : "Off") , 3, false, false, true);
 			}
 			
 			DoQQMacro();
