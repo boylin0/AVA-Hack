@@ -2,6 +2,24 @@
 #include "hook_function.h"
 
 
+PDWORD Direct3D_VMTable = NULL;
+bool fCall = true;
+
+typedef HRESULT(WINAPI* CreateDevice_Prototype)          (LPDIRECT3D9, UINT, D3DDEVTYPE, HWND, DWORD, D3DPRESENT_PARAMETERS*, LPDIRECT3DDEVICE9*);
+typedef HRESULT(WINAPI* Reset_Prototype)                 (LPDIRECT3DDEVICE9, D3DPRESENT_PARAMETERS*);
+typedef HRESULT(WINAPI* EndScene_Prototype)              (LPDIRECT3DDEVICE9);
+typedef HRESULT(WINAPI* DrawIndexedPrimitive_Prototype)  (LPDIRECT3DDEVICE9, D3DPRIMITIVETYPE, INT, UINT, UINT, UINT, UINT);
+typedef HRESULT(WINAPI* CreateQuery_Prototype)           (LPDIRECT3DDEVICE9, D3DQUERYTYPE, IDirect3DQuery9**);
+
+CreateDevice_Prototype         CreateDevice_Pointer = NULL;
+Reset_Prototype                Reset_Pointer = NULL;
+EndScene_Prototype             EndScene_Pointer = NULL;
+DrawIndexedPrimitive_Prototype DrawIndexedPrimitive_Pointer = NULL;
+CreateQuery_Prototype          CreateQuery_Pointer = NULL;
+
+LPD3DXFONT g_font_default;
+LPDIRECT3DTEXTURE9 texture_Red, texture_Black;
+IDirect3DPixelShader9 *Front, *Back;
 
 HRESULT WINAPI Direct3DCreate9_VMTable(VOID)
 {
@@ -127,7 +145,7 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 		if (func_changename) DrawString(1, 80, colorGreen, "ChangeName [On]"); else DrawString(1, 80, colorRed, "ChangeName [Off]");
 		*/
 
-		//d3dmenu.drawMenu();
+		d3dmenu.drawMenu();
 	}
 	return EndScene_Pointer(pDevice);
 }
@@ -172,7 +190,7 @@ void wallhack_default(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT Base
 	pDevice->SetRenderState(D3DRS_ZENABLE, dwOldZEnable);
 }
 
-bool fCall = true;
+
 
 HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, UINT MinIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount)
 {
@@ -207,4 +225,11 @@ HRESULT WINAPI CreateQuery_Detour(LPDIRECT3DDEVICE9 pDevice, D3DQUERYTYPE Type, 
 		}
 	}
 	return CreateQuery_Pointer(pDevice, Type, ppQuery);
+}
+
+void hookD3Dfunction() {
+	*(PDWORD)&Direct3D_VMTable[16] = (DWORD)Reset_Detour;
+	*(PDWORD)&Direct3D_VMTable[42] = (DWORD)EndScene_Detour;
+	*(PDWORD)&Direct3D_VMTable[82] = (DWORD)DrawIndexedPrimitive_Detour;
+	*(PDWORD)&Direct3D_VMTable[118] = (DWORD)CreateQuery_Detour;
 }
