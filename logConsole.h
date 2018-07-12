@@ -10,5 +10,5 @@ enum loginfo_type {
 class logConsole {
 public:
 	void startConsole();
-	void logMessage(char *msg, DWORD type, bool p_time = true, bool p_newline = true);
+	void logMessage(char *msg, DWORD type, bool showType=true, bool p_time = true, bool p_newline = true);
 };

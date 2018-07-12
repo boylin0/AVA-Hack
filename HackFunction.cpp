@@ -20,7 +20,7 @@ void ToggleChangeName() {
 		DWORD offsets[] = { 0x90, 0x28 };
 		DWORD p = Memory.readPointer(hProcess, baseAddress + 0x242BFE4, offsets);
 		if (p == 0) {
-			console.logMessage("[Error] ChangeName failed", 1);
+			console.logMessage("ChangeName failed", 1);
 		}
 		else {
 			if (orignal_name[0] == 0x0) ReadProcessMemory(hProcess, (LPCVOID)p, &orignal_name, sizeof(orignal_name), 0);
@@ -34,7 +34,7 @@ void ToggleChangeName() {
 		DWORD offsets[] = { 0x90, 0x28 };
 		DWORD p = Memory.readPointer(hProcess, baseAddress + 0x242BFE4, offsets);
 		if (p == 0) {
-			console.logMessage("[Error] ChangeName failed", 1);
+			console.logMessage("ChangeName failed", 1);
 		}
 		else {
 			WriteProcessMemory(hProcess, (LPVOID)p, &orignal_name, sizeof(orignal_name), 0);
