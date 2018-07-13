@@ -21,6 +21,84 @@ LPD3DXFONT g_font_default;
 LPDIRECT3DTEXTURE9 texture_Red, texture_Black;
 IDirect3DPixelShader9 *Front, *Back;
 
+
+int aimheight = 1;
+bool bESP = true;
+D3DVIEWPORT9 g_ViewPort;
+
+struct ModelInfo_t
+{
+	D3DXVECTOR3 Position2D;
+	D3DXVECTOR3 Position3D;
+	float Distance;
+};
+
+vector<ModelInfo_t*>ModelInfo;
+
+void PrintText(LPD3DXFONT Font, long x, long y, D3DCOLOR fontColor, char *text, ...)
+{
+	RECT rct;
+	rct.left = x - 1;
+	rct.right = x + 1;
+	rct.top = y - 1;
+	rct.bottom = y + 1;
+
+	if (!text) { return; }
+
+	char buf[256] = { 0 };
+	RECT FontRect = { x, y, x, y };
+	va_list va_alist;
+	va_start(va_alist, text);
+	vsprintf(buf, text, va_alist);
+	va_end(va_alist);
+	g_font_default->DrawTextA(NULL, buf, -1, &rct, DT_NOCLIP, fontColor);
+}
+
+float GetDistance(float Xx, float Yy, float xX, float yY)
+{
+	return sqrt((yY - Yy) * (yY - Yy) + (xX - Xx) * (xX - Xx));
+}
+
+void DrawPoint(LPDIRECT3DDEVICE9 pDevice, int baseX, int baseY, int baseW, int baseH, D3DCOLOR Cor)
+{
+	D3DRECT BarRect = { baseX, baseY, baseX + baseW, baseY + baseH };
+	pDevice->Clear(1, &BarRect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, Cor, 0, 0);
+}
+
+void AddModel(LPDIRECT3DDEVICE9 pDevice)
+{
+
+	ModelInfo_t* pModel = new ModelInfo_t;
+	
+	pDevice->GetViewport(&g_ViewPort);
+	D3DXMATRIX pProjection, pView, pWorld;
+	D3DXVECTOR3 vOut(0, 0, 0), vIn(0, 0, (float)aimheight);
+
+	pDevice->GetVertexShaderConstantF(0, pProjection, 4);
+	pDevice->GetVertexShaderConstantF(231, pView, 4);
+
+	D3DXMatrixIdentity(&pWorld);
+
+	D3DXVECTOR3 VectorMiddle(0, 0, 0), ScreenMiddlee(0, 0, 0);
+	D3DXVec3Unproject(&VectorMiddle, &ScreenMiddlee, &g_ViewPort, &pProjection, &pView, &pWorld);
+
+	D3DXVec3Project(&vOut, &vIn, &g_ViewPort, &pProjection, &pView, &pWorld);
+
+	float RealDistance = GetDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100;
+
+	if (vOut.z < 1.0f)
+	{
+
+		pModel->Position2D.y = vOut.y;
+		pModel->Position2D.x = vOut.x;
+		pModel->Position2D.z = vOut.z;
+		pModel->Distance = RealDistance;
+	}
+
+	ModelInfo.push_back(pModel);
+}
+
+
 HRESULT WINAPI Direct3DCreate9_VMTable(VOID)
 {
 	console.startConsole();
@@ -124,37 +202,7 @@ HRESULT CreateMyShader(IDirect3DPixelShader9 **pShader, IDirect3DDevice9 *Device
 
 
 
-HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
-{
-	if (texture_Red == NULL) GenerateTexture(pDevice, &texture_Red, D3DCOLOR_ARGB(255, 255, 0, 0));
-	if (texture_Black == NULL) GenerateTexture(pDevice, &texture_Black, D3DCOLOR_ARGB(255, 0, 0, 0));
-	if (g_font_default == NULL) D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default); //Create fonts
 
-	
-	if (d3dmenu.g_font == NULL) {
-		d3dmenu.g_font = g_font_default;
-		d3dmenu.additem("AVA Hack @2018", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[MENU]", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[F4] WallHack", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[F5] ChangeName", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[F6] QQMacro", D3DCOLOR_ARGB(255, 255, 000, 000));
-	}
-	
-
-	if (menu)
-	{
-		/*
-		DrawString(1, 1, D3DCOLOR_ARGB(255, 000, 255, 000), "AVA HACK @2018");
-		DrawString(1, 40, D3DCOLOR_ARGB(255, 000, 255, 000), "[MENU]");
-		DWORD colorGreen = D3DCOLOR_ARGB(255, 000, 255, 000), colorRed = D3DCOLOR_ARGB(255, 255, 000, 000);
-		if (func_wallhack) DrawString(1, 60, colorGreen, "WallHack [On]"); else DrawString(1, 60, colorRed ,"WallHack [Off]");
-		if (func_changename) DrawString(1, 80, colorGreen, "ChangeName [On]"); else DrawString(1, 80, colorRed, "ChangeName [Off]");
-		*/
-
-		d3dmenu.drawMenu();
-	}
-	return EndScene_Pointer(pDevice);
-}
 
 void wallhack_ghostChams(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, UINT MinIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount) {
 	//Device_Interface->SetPixelShader(Back);
@@ -196,7 +244,51 @@ void wallhack_default(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT Base
 	pDevice->SetRenderState(D3DRS_ZENABLE, dwOldZEnable);
 }
 
+int minX, minY, minDistance;
+bool isfirst = true, isfound=false;
+int ScreenCenterX, ScreenCenterY;
 
+HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
+{
+	if (texture_Red == NULL) GenerateTexture(pDevice, &texture_Red, D3DCOLOR_ARGB(255, 255, 0, 0));
+	if (texture_Black == NULL) GenerateTexture(pDevice, &texture_Black, D3DCOLOR_ARGB(255, 0, 0, 0));
+	if (g_font_default == NULL) D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default); //Create fonts
+
+
+	if (d3dmenu.g_font == NULL) {
+		d3dmenu.g_font = g_font_default;
+		d3dmenu.additem("AVA Hack @2018", D3DCOLOR_ARGB(255, 255, 000, 000));
+		d3dmenu.additem("[MENU]", D3DCOLOR_ARGB(255, 255, 000, 000));
+		d3dmenu.additem("[F4] WallHack", D3DCOLOR_ARGB(255, 255, 000, 000));
+		d3dmenu.additem("[F5] ChangeName", D3DCOLOR_ARGB(255, 255, 000, 000));
+		d3dmenu.additem("[F6] QQMacro", D3DCOLOR_ARGB(255, 255, 000, 000));
+	}
+
+
+	if (menu)
+	{
+		/*
+		DrawString(1, 1, D3DCOLOR_ARGB(255, 000, 255, 000), "AVA HACK @2018");
+		DrawString(1, 40, D3DCOLOR_ARGB(255, 000, 255, 000), "[MENU]");
+		DWORD colorGreen = D3DCOLOR_ARGB(255, 000, 255, 000), colorRed = D3DCOLOR_ARGB(255, 255, 000, 000);
+		if (func_wallhack) DrawString(1, 60, colorGreen, "WallHack [On]"); else DrawString(1, 60, colorRed ,"WallHack [Off]");
+		if (func_changename) DrawString(1, 80, colorGreen, "ChangeName [On]"); else DrawString(1, 80, colorRed, "ChangeName [Off]");
+		*/
+
+		d3dmenu.drawMenu();
+	}
+
+	if (GetAsyncKeyState(0x4) && isfound) {
+		printf("ScreenCenterX:%d ScreenCenterY:%d\n", ScreenCenterX, ScreenCenterY);
+		printf("minX:%d minY:%d minDistance:%d\n", minX, minY, minDistance);
+		printf("\n");
+		PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
+	}
+
+	isfirst = true;
+	isfound = false;
+	return EndScene_Pointer(pDevice);
+}
 
 HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, UINT MinIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount)
 {
@@ -215,7 +307,57 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 	if (func_wallhack && Stride == 32 && StartIndex == 0)
 	{
-		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
+		AddModel(pDevice);
+		if (ModelInfo.size() != NULL && bESP)
+		{
+			D3DVIEWPORT9 viewport;
+			pDevice->GetViewport(&viewport);
+			ScreenCenterX = viewport.Width / 2.0f;
+			ScreenCenterY = viewport.Height / 2.0f;
+
+			for (size_t i = 0; i < ModelInfo.size(); i++)
+			{
+				DWORD dwOldZEnable = D3DZB_TRUE;
+				pDevice->GetRenderState(D3DRS_ZENABLE, &dwOldZEnable);
+				pDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+
+				DrawPoint(pDevice, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y, 4, 4, D3DCOLOR_XRGB(255, 0, 0));
+				PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y - 15, D3DCOLOR_XRGB(255, 0, 0), "d: %0.1f m", ModelInfo[i]->Distance);
+
+				pDevice->SetRenderState(D3DRS_ZENABLE, dwOldZEnable);
+
+				if (isfirst) {
+					minDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
+					isfirst = false;
+				}
+
+				if (minDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
+					&& ModelInfo[i]->Position2D.x >  200
+					&& ModelInfo[i]->Position2D.y >  200) {
+					minX = ModelInfo[i]->Position2D.x;
+					minY = ModelInfo[i]->Position2D.y;
+					minDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
+					isfound = true;
+				}
+
+			}
+
+
+			ModelInfo.clear();
+		}
+
+
+		//wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
+	}
+
+	if (GetAsyncKeyState(VK_NUMPAD2) & 1)
+	{
+		aimheight--;
+	}
+
+	if (GetAsyncKeyState(VK_NUMPAD8) & 1)
+	{
+		aimheight++;
 	}
 
 	return DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
