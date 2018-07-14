@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "hook_function.h"
-
-
+//68 ªª®v head
+//68 122
+#define chahead ((NumVertices == 68 && PrimitiveCount!=80) || (NumVertices == 122 && PrimitiveCount!=140) || NumVertices  == 114|| NumVertices == 282 || NumVertices == 74 || NumVertices == 194 || NumVertices == 34 || NumVertices == 26 || NumVertices == 158 ||NumVertices == 130 ||NumVertices == 254 ||NumVertices == 66 || NumVertices == 82 ||NumVertices == 50)
 PDWORD Direct3D_VMTable = NULL;
 bool fCall = true;
 
@@ -22,8 +23,7 @@ LPDIRECT3DTEXTURE9 texture_Red, texture_Black;
 IDirect3DPixelShader9 *Front, *Back;
 
 
-int aimheight = 1;
-bool bESP = true;
+int aimheight = 3;
 D3DVIEWPORT9 g_ViewPort;
 
 struct ModelInfo_t
@@ -244,10 +244,10 @@ void wallhack_default(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT Base
 	pDevice->SetRenderState(D3DRS_ZENABLE, dwOldZEnable);
 }
 
-int minX, minY, minDistance;
-bool isfirst = true, isfound=false;
+int minX, minY, minDistance, foundnum=0;
+bool isfirst = true;
 int ScreenCenterX, ScreenCenterY;
-
+float mou=2.5;
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 {
 	if (texture_Red == NULL) GenerateTexture(pDevice, &texture_Red, D3DCOLOR_ARGB(255, 255, 0, 0));
@@ -278,15 +278,16 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 		d3dmenu.drawMenu();
 	}
 
-	if (GetAsyncKeyState(0x4) && isfound) {
+	if (GetAsyncKeyState(0x4) && foundnum>0) {
 		printf("ScreenCenterX:%d ScreenCenterY:%d\n", ScreenCenterX, ScreenCenterY);
 		printf("minX:%d minY:%d minDistance:%d\n", minX, minY, minDistance);
 		printf("\n");
 		PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
+		mouse_event(MOUSEEVENTF_MOVE, (minX - ScreenCenterX ) / mou, (minY - ScreenCenterY) / mou, 0, 0);
 	}
 
-	isfirst = true;
-	isfound = false;
+	foundnum = 0;
+	minDistance = 500;
 	return EndScene_Pointer(pDevice);
 }
 
@@ -307,57 +308,68 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 	if (func_wallhack && Stride == 32 && StartIndex == 0)
 	{
-		AddModel(pDevice);
-		if (ModelInfo.size() != NULL && bESP)
-		{
-			D3DVIEWPORT9 viewport;
-			pDevice->GetViewport(&viewport);
-			ScreenCenterX = viewport.Width / 2.0f;
-			ScreenCenterY = viewport.Height / 2.0f;
+		DWORD dwOldZEnable = D3DZB_TRUE;
+		pDevice->GetRenderState(D3DRS_ZENABLE, &dwOldZEnable);
+		pDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+		DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
+		pDevice->SetRenderState(D3DRS_ZENABLE, dwOldZEnable);
 
-			for (size_t i = 0; i < ModelInfo.size(); i++)
+		if (GetAsyncKeyState(VK_F8) || chahead) {
+			AddModel(pDevice);
+			if (ModelInfo.size() != NULL)
 			{
-				DWORD dwOldZEnable = D3DZB_TRUE;
-				pDevice->GetRenderState(D3DRS_ZENABLE, &dwOldZEnable);
-				pDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+				D3DVIEWPORT9 viewport;
+				pDevice->GetViewport(&viewport);
+				ScreenCenterX = viewport.Width / 2.0f;
+				ScreenCenterY = viewport.Height / 2.0f;
 
-				DrawPoint(pDevice, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y, 4, 4, D3DCOLOR_XRGB(255, 0, 0));
-				PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y - 15, D3DCOLOR_XRGB(255, 0, 0), "d: %0.1f m", ModelInfo[i]->Distance);
+				for (size_t i = 0; i < ModelInfo.size(); i++)
+				{
 
-				pDevice->SetRenderState(D3DRS_ZENABLE, dwOldZEnable);
+					DrawPoint(pDevice, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y, 4, 4, D3DCOLOR_XRGB(255, 0, 0));
+					PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y - 15, D3DCOLOR_XRGB(255, 0, 0),
+						"NumVertices: %d\nPrimitiveCount: %d",
+						NumVertices,
+						PrimitiveCount);
 
-				if (isfirst) {
-					minDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
-					isfirst = false;
+					if (GetAsyncKeyState(VK_F7)) cout << NumVertices << endl;
+					/*
+					"d: %0.1f m\nX:%f Y:%f\ndistance:%f",
+					ModelInfo[i]->Distance,
+					ModelInfo[i]->Position2D.x,
+					ModelInfo[i]->Position2D.y,
+					GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY));
+					*/
+
+					if (minDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) && GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
+						minX = ModelInfo[i]->Position2D.x;
+						minY = ModelInfo[i]->Position2D.y;
+						minDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
+						foundnum++;
+					}
+
 				}
 
-				if (minDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
-					&& ModelInfo[i]->Position2D.x >  200
-					&& ModelInfo[i]->Position2D.y >  200) {
-					minX = ModelInfo[i]->Position2D.x;
-					minY = ModelInfo[i]->Position2D.y;
-					minDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
-					isfound = true;
-				}
 
+				ModelInfo.clear();
 			}
-
-
-			ModelInfo.clear();
 		}
 
 
 		//wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 	}
 
+
 	if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 	{
-		aimheight--;
+		mou += 0.1;
+		cout << mou << endl;
 	}
 
 	if (GetAsyncKeyState(VK_NUMPAD8) & 1)
 	{
-		aimheight++;
+		mou -= 0.1;
+		cout << mou << endl;
 	}
 
 	return DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
