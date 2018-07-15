@@ -30,7 +30,7 @@ bool func_changename = false,
 	 func_wallhack = false,
 	 func_QQMacro = false;
 
-BYTE orignal_name[72] = { NULL };
+BYTE orignal_name[22] = { NULL };
 
 
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved )

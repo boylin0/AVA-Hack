@@ -23,7 +23,7 @@ LPDIRECT3DTEXTURE9 texture_Red, texture_Black;
 IDirect3DPixelShader9 *Front, *Back;
 
 
-int aimheight = 3;
+int aimheight = 0;
 D3DVIEWPORT9 g_ViewPort;
 
 struct ModelInfo_t
@@ -72,14 +72,14 @@ void AddModel(LPDIRECT3DDEVICE9 pDevice)
 	
 	pDevice->GetViewport(&g_ViewPort);
 	D3DXMATRIX pProjection, pView, pWorld;
-	D3DXVECTOR3 vOut(0, 0, 0), vIn(0, 0, (float)aimheight);
+	D3DXVECTOR3 vOut(0, 0, 0), vIn(0, (float)aimheight, 1);
 
 	pDevice->GetVertexShaderConstantF(0, pProjection, 4);
 	pDevice->GetVertexShaderConstantF(231, pView, 4);
 
 	D3DXMatrixIdentity(&pWorld);
 
-	D3DXVECTOR3 VectorMiddle(0, 0, 0), ScreenMiddlee(0, 0, 0);
+	D3DXVECTOR3 VectorMiddle(0, 0,0), ScreenMiddlee(0, 0, 0);
 	D3DXVec3Unproject(&VectorMiddle, &ScreenMiddlee, &g_ViewPort, &pProjection, &pView, &pWorld);
 
 	D3DXVec3Project(&vOut, &vIn, &g_ViewPort, &pProjection, &pView, &pWorld);
@@ -88,7 +88,7 @@ void AddModel(LPDIRECT3DDEVICE9 pDevice)
 
 	if (vOut.z < 1.0f)
 	{
-
+		
 		pModel->Position2D.y = vOut.y;
 		pModel->Position2D.x = vOut.x;
 		pModel->Position2D.z = vOut.z;
@@ -245,9 +245,12 @@ void wallhack_default(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT Base
 }
 
 int minX, minY, minDistance, foundnum=0;
+int mouseOffset_X, mouseOffset_Y;
 bool isfirst = true;
-int ScreenCenterX, ScreenCenterY;
+int ScreenCenterX = NULL, ScreenCenterY = NULL;
 float mou=2.5;
+
+
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 {
 	if (texture_Red == NULL) GenerateTexture(pDevice, &texture_Red, D3DCOLOR_ARGB(255, 255, 0, 0));
@@ -281,9 +284,16 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 	if (GetAsyncKeyState(0x4) && foundnum>0) {
 		printf("ScreenCenterX:%d ScreenCenterY:%d\n", ScreenCenterX, ScreenCenterY);
 		printf("minX:%d minY:%d minDistance:%d\n", minX, minY, minDistance);
+		printf("mouseOffset X:%d Y:%d (actual: X:%d Y:%d)\n", (minX - ScreenCenterX), (minY - ScreenCenterY) ,  (minX - ScreenCenterX )/ mou , (minY - ScreenCenterY) / mou);
 		printf("\n");
 		PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
-		mouse_event(MOUSEEVENTF_MOVE, (minX - ScreenCenterX ) / mou, (minY - ScreenCenterY) / mou, 0, 0);
+
+		mouseOffset_X = (minX - ScreenCenterX) / mou;
+		mouseOffset_Y = (minY - ScreenCenterY + 13) / mou;
+		if (mouseOffset_X >= 50) mouseOffset_X = (minX - ScreenCenterX) / ((mou * 0.5) < 1 ? 1 : (mou * 0.5));
+		if (mouseOffset_Y >= 50) mouseOffset_Y = (minY - ScreenCenterY) / ((mou * 0.5) < 1 ? 1 : (mou * 0.5));
+		mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X, mouseOffset_Y, 0, 0);
+
 	}
 
 	foundnum = 0;
@@ -318,10 +328,12 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 			AddModel(pDevice);
 			if (ModelInfo.size() != NULL)
 			{
-				D3DVIEWPORT9 viewport;
-				pDevice->GetViewport(&viewport);
-				ScreenCenterX = viewport.Width / 2.0f;
-				ScreenCenterY = viewport.Height / 2.0f;
+				D3DDEVICE_CREATION_PARAMETERS cparams;
+				RECT rect;
+				pDevice->GetCreationParameters(&cparams);
+				GetWindowRect(cparams.hFocusWindow, &rect);
+				if (ScreenCenterX == NULL) ScreenCenterX = (rect.right - rect.left ) / 2.0f;
+				if (ScreenCenterY == NULL) ScreenCenterY = (rect.bottom - rect.top) / 2.0f;
 
 				for (size_t i = 0; i < ModelInfo.size(); i++)
 				{
@@ -341,7 +353,7 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 					GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY));
 					*/
 
-					if (minDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) && GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
+					if ( minDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) && GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
 						minX = ModelInfo[i]->Position2D.x;
 						minY = ModelInfo[i]->Position2D.y;
 						minDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
@@ -363,13 +375,13 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 	if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 	{
 		mou += 0.1;
-		cout << mou << endl;
+		cout << "mousespeed:" << mou << endl;
 	}
 
 	if (GetAsyncKeyState(VK_NUMPAD8) & 1)
 	{
 		mou -= 0.1;
-		cout << mou << endl;
+		cout << "mousespeed:" << mou << endl;
 	}
 
 	return DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
