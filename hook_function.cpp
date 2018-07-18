@@ -1,5 +1,10 @@
 #include "stdafx.h"
 #include "hook_function.h"
+
+#include "imgui\imconfig.h"
+#include "imgui\imgui.h"
+#include "imgui\imgui_internal.h"
+
 //68 ªª®v head
 //68 122
 #define chahead ((NumVertices == 68 && PrimitiveCount!=80) || (NumVertices == 122 && PrimitiveCount!=140) || NumVertices  == 114|| NumVertices == 282 || NumVertices == 74 || NumVertices == 194 || NumVertices == 34 || NumVertices == 26 || NumVertices == 158 ||NumVertices == 130 ||NumVertices == 254 ||NumVertices == 66 || NumVertices == 82 ||NumVertices == 50)
@@ -25,6 +30,8 @@ IDirect3DPixelShader9 *Front, *Back;
 
 int aimheight = 0;
 D3DVIEWPORT9 g_ViewPort;
+
+bool menuinit = true;
 
 struct ModelInfo_t
 {
@@ -200,10 +207,6 @@ HRESULT CreateMyShader(IDirect3DPixelShader9 **pShader, IDirect3DDevice9 *Device
 	return S_OK;
 }
 
-
-
-
-
 void wallhack_ghostChams(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, UINT MinIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount) {
 	//Device_Interface->SetPixelShader(Back);
 
@@ -232,24 +235,12 @@ void wallhack_ghostChams(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT B
 	//Device_Interface->SetPixelShader(Back);
 }
 
-void wallhack_default(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, UINT MinIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount) {
-	DWORD dwOldZEnable;
-	//get previous state
-	pDevice->GetRenderState(D3DRS_ZENABLE, &dwOldZEnable);
-	//set state
-	pDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-	DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
-
-	//set back
-	pDevice->SetRenderState(D3DRS_ZENABLE, dwOldZEnable);
-}
-
 int minX, minY, minDistance, foundnum=0;
 int mouseOffset_X, mouseOffset_Y;
 bool isfirst = true;
 int ScreenCenterX = NULL, ScreenCenterY = NULL;
 float mou=2.5;
-
+bool my_tool_active;
 
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 {
@@ -257,7 +248,36 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 	if (texture_Black == NULL) GenerateTexture(pDevice, &texture_Black, D3DCOLOR_ARGB(255, 0, 0, 0));
 	if (g_font_default == NULL) D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default); //Create fonts
 
+	
+	if (!menuinit) {
 
+		ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
+				if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
+				if (ImGui::MenuItem("Close", "Ctrl+W")) { my_tool_active = false; }
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		// Plot some values
+		const float my_values[] = { 0.2f, 0.1f, 1.0f, 0.5f, 0.9f, 2.2f };
+		ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
+
+		// Display contents in a scrolling region
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
+		ImGui::BeginChild("Scrolling");
+		for (int n = 0; n < 50; n++)
+			ImGui::Text("%04d: Some text", n);
+		ImGui::EndChild();
+		ImGui::End();
+		menuinit = false;
+	}
+	
 	if (d3dmenu.g_font == NULL) {
 		d3dmenu.g_font = g_font_default;
 		d3dmenu.additem("AVA Hack @2018", D3DCOLOR_ARGB(255, 255, 000, 000));
@@ -289,9 +309,11 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 		PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
 
 		mouseOffset_X = (minX - ScreenCenterX) / mou;
-		mouseOffset_Y = (minY - ScreenCenterY + 13) / mou;
-		if (mouseOffset_X >= 50) mouseOffset_X = (minX - ScreenCenterX) / ((mou * 0.5) < 1 ? 1 : (mou * 0.5));
-		if (mouseOffset_Y >= 50) mouseOffset_Y = (minY - ScreenCenterY) / ((mou * 0.5) < 1 ? 1 : (mou * 0.5));
+		mouseOffset_Y = (minY - ScreenCenterY + 15) / mou;
+		if (mouseOffset_X >= 50) mouseOffset_X = (minX - ScreenCenterX) / ((mou * 0.5) < 1 ? 1 : (mou * 0.4));
+		if (mouseOffset_Y >= 50) mouseOffset_Y = (minY - ScreenCenterY) / ((mou * 0.5) < 1 ? 1 : (mou * 0.4));
+
+
 		mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X, mouseOffset_Y, 0, 0);
 
 	}
@@ -318,11 +340,6 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 	if (func_wallhack && Stride == 32 && StartIndex == 0)
 	{
-		DWORD dwOldZEnable = D3DZB_TRUE;
-		pDevice->GetRenderState(D3DRS_ZENABLE, &dwOldZEnable);
-		pDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-		DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
-		pDevice->SetRenderState(D3DRS_ZENABLE, dwOldZEnable);
 
 		if (GetAsyncKeyState(VK_F8) || chahead) {
 			AddModel(pDevice);
@@ -332,7 +349,7 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 				RECT rect;
 				pDevice->GetCreationParameters(&cparams);
 				GetWindowRect(cparams.hFocusWindow, &rect);
-				if (ScreenCenterX == NULL) ScreenCenterX = (rect.right - rect.left ) / 2.0f;
+				if (ScreenCenterX == NULL) ScreenCenterX = (rect.right - rect.left) / 2.0f;
 				if (ScreenCenterY == NULL) ScreenCenterY = (rect.bottom - rect.top) / 2.0f;
 
 				for (size_t i = 0; i < ModelInfo.size(); i++)
@@ -353,7 +370,7 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 					GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY));
 					*/
 
-					if ( minDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) && GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
+					if (minDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) && GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
 						minX = ModelInfo[i]->Position2D.x;
 						minY = ModelInfo[i]->Position2D.y;
 						minDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
@@ -366,6 +383,25 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 				ModelInfo.clear();
 			}
 		}
+
+
+		DWORD dwOldZEnable, dwALPHABLENDENABLE, dwDESTBLEND, dwSRCBLEND;
+		pDevice->GetRenderState(D3DRS_ZENABLE, &dwOldZEnable);
+		pDevice->GetRenderState(D3DRS_ALPHABLENDENABLE, &dwALPHABLENDENABLE);
+		pDevice->GetRenderState(D3DRS_DESTBLEND, &dwDESTBLEND);
+		pDevice->GetRenderState(D3DRS_SRCBLEND, &dwSRCBLEND);
+
+		pDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+		pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+		pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVDESTCOLOR);
+		pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_INVSRCCOLOR);
+
+		DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
+		pDevice->SetRenderState(D3DRS_ZENABLE, dwOldZEnable);
+		pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, dwALPHABLENDENABLE);
+		pDevice->SetRenderState(D3DRS_DESTBLEND, dwDESTBLEND);
+		pDevice->SetRenderState(D3DRS_SRCBLEND, dwSRCBLEND);
+
 
 
 		//wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);

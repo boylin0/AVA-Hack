@@ -7,6 +7,9 @@
 #include "HackFunction.h"
 #include "hook_function.h"
 
+#include "imgui\imgui.h"
+
+
 using namespace std;
 
 //D3D
@@ -59,7 +62,7 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 	//start logConsole
 	
 	console.logMessage("Game Window Started", 0);
-
+	#include "ImGUI\imgui.h"
 	while (1)
 	{
 		Sleep(100);
