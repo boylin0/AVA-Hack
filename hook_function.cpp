@@ -1,9 +1,7 @@
 #include "stdafx.h"
 #include "hook_function.h"
 
-#include "imgui\imconfig.h"
-#include "imgui\imgui.h"
-#include "imgui\imgui_internal.h"
+
 
 //68 ªª®v head
 //68 122
@@ -31,7 +29,6 @@ IDirect3DPixelShader9 *Front, *Back;
 int aimheight = 0;
 D3DVIEWPORT9 g_ViewPort;
 
-bool menuinit = true;
 
 struct ModelInfo_t
 {
@@ -74,7 +71,6 @@ void DrawPoint(LPDIRECT3DDEVICE9 pDevice, int baseX, int baseY, int baseW, int b
 
 void AddModel(LPDIRECT3DDEVICE9 pDevice)
 {
-
 	ModelInfo_t* pModel = new ModelInfo_t;
 	
 	pDevice->GetViewport(&g_ViewPort);
@@ -82,20 +78,19 @@ void AddModel(LPDIRECT3DDEVICE9 pDevice)
 	D3DXVECTOR3 vOut(0, 0, 0), vIn(0, (float)aimheight, 1);
 
 	pDevice->GetVertexShaderConstantF(0, pProjection, 4);
-	pDevice->GetVertexShaderConstantF(231, pView, 4);
+	pDevice->GetVertexShaderConstantF(230, pView, 4);
 
 	D3DXMatrixIdentity(&pWorld);
 
-	D3DXVECTOR3 VectorMiddle(0, 0,0), ScreenMiddlee(0, 0, 0);
+	D3DXVECTOR3 VectorMiddle(0, 0, 0), ScreenMiddlee(0, 0, 0);
 	D3DXVec3Unproject(&VectorMiddle, &ScreenMiddlee, &g_ViewPort, &pProjection, &pView, &pWorld);
 
 	D3DXVec3Project(&vOut, &vIn, &g_ViewPort, &pProjection, &pView, &pWorld);
-
-	float RealDistance = GetDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100;
-
+	
+	float RealDistance = GetDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100 ;
+	
 	if (vOut.z < 1.0f)
 	{
-		
 		pModel->Position2D.y = vOut.y;
 		pModel->Position2D.x = vOut.x;
 		pModel->Position2D.z = vOut.z;
@@ -235,11 +230,10 @@ void wallhack_ghostChams(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT B
 	//Device_Interface->SetPixelShader(Back);
 }
 
-int minX, minY, minDistance, foundnum=0;
+int minX, minY, minZ, minCrosshairDistance, foundnum=0;
 int mouseOffset_X, mouseOffset_Y;
-bool isfirst = true;
 int ScreenCenterX = NULL, ScreenCenterY = NULL;
-float mou=2.5;
+float mouseSmooth=2.5;
 bool my_tool_active;
 
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
@@ -248,35 +242,6 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 	if (texture_Black == NULL) GenerateTexture(pDevice, &texture_Black, D3DCOLOR_ARGB(255, 0, 0, 0));
 	if (g_font_default == NULL) D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default); //Create fonts
 
-	
-	if (!menuinit) {
-
-		ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("File"))
-			{
-				if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
-				if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
-				if (ImGui::MenuItem("Close", "Ctrl+W")) { my_tool_active = false; }
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
-		}
-
-		// Plot some values
-		const float my_values[] = { 0.2f, 0.1f, 1.0f, 0.5f, 0.9f, 2.2f };
-		ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
-
-		// Display contents in a scrolling region
-		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
-		ImGui::BeginChild("Scrolling");
-		for (int n = 0; n < 50; n++)
-			ImGui::Text("%04d: Some text", n);
-		ImGui::EndChild();
-		ImGui::End();
-		menuinit = false;
-	}
 	
 	if (d3dmenu.g_font == NULL) {
 		d3dmenu.g_font = g_font_default;
@@ -301,25 +266,64 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 		d3dmenu.drawMenu();
 	}
 
-	if (GetAsyncKeyState(0x4) && foundnum>0) {
-		printf("ScreenCenterX:%d ScreenCenterY:%d\n", ScreenCenterX, ScreenCenterY);
-		printf("minX:%d minY:%d minDistance:%d\n", minX, minY, minDistance);
-		printf("mouseOffset X:%d Y:%d (actual: X:%d Y:%d)\n", (minX - ScreenCenterX), (minY - ScreenCenterY) ,  (minX - ScreenCenterX )/ mou , (minY - ScreenCenterY) / mou);
-		printf("\n");
+
+	foundnum = 0;
+	minCrosshairDistance = 500;
+	if (ModelInfo.size() != NULL)
+	{
+		D3DDEVICE_CREATION_PARAMETERS cparams;
+		RECT rect;
+		pDevice->GetCreationParameters(&cparams);
+		GetWindowRect(cparams.hFocusWindow, &rect);
+		if (ScreenCenterX == NULL) ScreenCenterX = (rect.right - rect.left) / 2.0f;
+		if (ScreenCenterY == NULL) ScreenCenterY = (rect.bottom - rect.top) / 2.0f;
+
+		for (size_t i = 0; i < ModelInfo.size(); i++)
+		{
+
+			DrawPoint(pDevice, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y, 4, 4, D3DCOLOR_XRGB(255, 0, 0));
+			PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y - 25, D3DCOLOR_XRGB(255, 0, 0),
+				"%.1f",
+				ModelInfo[i]->Distance);
+
+			if (minCrosshairDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
+				&& GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
+				minX = ModelInfo[i]->Position2D.x;
+				minY = ModelInfo[i]->Position2D.y;
+				minZ = ModelInfo[i]->Position2D.z;
+				minCrosshairDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
+				foundnum++;
+			}
+
+		}
+
+		ModelInfo.clear();
+	}
+
+	if (GetAsyncKeyState(0x4) && foundnum > 0 ) {
+
 		PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
 
-		mouseOffset_X = (minX - ScreenCenterX) / mou;
-		mouseOffset_Y = (minY - ScreenCenterY + 15) / mou;
-		if (mouseOffset_X >= 50) mouseOffset_X = (minX - ScreenCenterX) / ((mou * 0.5) < 1 ? 1 : (mou * 0.4));
-		if (mouseOffset_Y >= 50) mouseOffset_Y = (minY - ScreenCenterY) / ((mou * 0.5) < 1 ? 1 : (mou * 0.4));
+		mouseOffset_X = (minX - ScreenCenterX) / mouseSmooth;
+		mouseOffset_Y = (minY - ScreenCenterY + 17) / mouseSmooth;
+
+		if (mouseOffset_X >= 50)
+			mouseOffset_X = (mouseOffset_X * mouseSmooth) / ((mouseSmooth * 0.5) < 1 ? 1 : (mouseSmooth * 0.5));
 
 
-		mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X, mouseOffset_Y, 0, 0);
+		if (mouseOffset_Y >= 50) 
+			mouseOffset_Y = (mouseOffset_Y * mouseSmooth) / ((mouseSmooth * 0.5) < 1 ? 1 : (mouseSmooth * 0.5));
+
+		printf("ScreenCenterX:%d ScreenCenterY:%d\n", ScreenCenterX, ScreenCenterY);
+		printf("minX:%d minY:%d minDistance:%d\n", minX, minY, minCrosshairDistance);
+		printf("mouseOffset X:%d Y:%d (actual: X:%d Y:%d)\n", (minX - ScreenCenterX), (minY - ScreenCenterY), mouseOffset_X, mouseOffset_Y);
+		printf("\n");
+
+		mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X + 1, mouseOffset_Y  , 0, 0);
 
 	}
 
-	foundnum = 0;
-	minDistance = 500;
+
 	return EndScene_Pointer(pDevice);
 }
 
@@ -340,84 +344,24 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 	if (func_wallhack && Stride == 32 && StartIndex == 0)
 	{
-
+		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		if (GetAsyncKeyState(VK_F8) || chahead) {
 			AddModel(pDevice);
-			if (ModelInfo.size() != NULL)
-			{
-				D3DDEVICE_CREATION_PARAMETERS cparams;
-				RECT rect;
-				pDevice->GetCreationParameters(&cparams);
-				GetWindowRect(cparams.hFocusWindow, &rect);
-				if (ScreenCenterX == NULL) ScreenCenterX = (rect.right - rect.left) / 2.0f;
-				if (ScreenCenterY == NULL) ScreenCenterY = (rect.bottom - rect.top) / 2.0f;
-
-				for (size_t i = 0; i < ModelInfo.size(); i++)
-				{
-
-					DrawPoint(pDevice, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y, 4, 4, D3DCOLOR_XRGB(255, 0, 0));
-					PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y - 15, D3DCOLOR_XRGB(255, 0, 0),
-						"NumVertices: %d\nPrimitiveCount: %d",
-						NumVertices,
-						PrimitiveCount);
-
-					if (GetAsyncKeyState(VK_F7)) cout << NumVertices << endl;
-					/*
-					"d: %0.1f m\nX:%f Y:%f\ndistance:%f",
-					ModelInfo[i]->Distance,
-					ModelInfo[i]->Position2D.x,
-					ModelInfo[i]->Position2D.y,
-					GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY));
-					*/
-
-					if (minDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) && GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
-						minX = ModelInfo[i]->Position2D.x;
-						minY = ModelInfo[i]->Position2D.y;
-						minDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
-						foundnum++;
-					}
-
-				}
-
-
-				ModelInfo.clear();
-			}
 		}
 
-
-		DWORD dwOldZEnable, dwALPHABLENDENABLE, dwDESTBLEND, dwSRCBLEND;
-		pDevice->GetRenderState(D3DRS_ZENABLE, &dwOldZEnable);
-		pDevice->GetRenderState(D3DRS_ALPHABLENDENABLE, &dwALPHABLENDENABLE);
-		pDevice->GetRenderState(D3DRS_DESTBLEND, &dwDESTBLEND);
-		pDevice->GetRenderState(D3DRS_SRCBLEND, &dwSRCBLEND);
-
-		pDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-		pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
-		pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVDESTCOLOR);
-		pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_INVSRCCOLOR);
-
-		DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
-		pDevice->SetRenderState(D3DRS_ZENABLE, dwOldZEnable);
-		pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, dwALPHABLENDENABLE);
-		pDevice->SetRenderState(D3DRS_DESTBLEND, dwDESTBLEND);
-		pDevice->SetRenderState(D3DRS_SRCBLEND, dwSRCBLEND);
-
-
-
-		//wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 	}
 
 
 	if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 	{
-		mou += 0.1;
-		cout << "mousespeed:" << mou << endl;
+		mouseSmooth += 0.1;
+		cout << "mousespeed:" << mouseSmooth << endl;
 	}
 
 	if (GetAsyncKeyState(VK_NUMPAD8) & 1)
 	{
-		mou -= 0.1;
-		cout << "mousespeed:" << mou << endl;
+		mouseSmooth -= 0.1;
+		cout << "mousespeed:" << mouseSmooth << endl;
 	}
 
 	return DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);

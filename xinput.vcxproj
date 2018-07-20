@@ -93,9 +93,6 @@
     <ClInclude Include="d3dMenu.h" />
     <ClInclude Include="HackFunction.h" />
     <ClInclude Include="hook_function.h" />
-    <ClInclude Include="imgui\imconfig.h" />
-    <ClInclude Include="imgui\imgui.h" />
-    <ClInclude Include="imgui\imgui_internal.h" />
     <ClInclude Include="IniReader.h" />
     <ClInclude Include="logConsole.h" />
     <ClInclude Include="Memory.h" />
@@ -117,9 +114,6 @@
     </ClCompile>
     <ClCompile Include="HackFunction.cpp" />
     <ClCompile Include="hook_function.cpp" />
-    <ClCompile Include="imgui\imgui.cpp" />
-    <ClCompile Include="imgui\imgui_demo.cpp" />
-    <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="logConsole.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="stdafx.cpp">
