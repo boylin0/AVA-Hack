@@ -94,6 +94,8 @@
     <ClInclude Include="HackFunction.h" />
     <ClInclude Include="hook_function.h" />
     <ClInclude Include="IniReader.h" />
+    <ClInclude Include="Lib\drawing\colors.h" />
+    <ClInclude Include="Lib\drawing\draw.h" />
     <ClInclude Include="logConsole.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="resource.h" />
@@ -114,6 +116,7 @@
     </ClCompile>
     <ClCompile Include="HackFunction.cpp" />
     <ClCompile Include="hook_function.cpp" />
+    <ClCompile Include="Lib\drawing\draw.cpp" />
     <ClCompile Include="logConsole.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="stdafx.cpp">
