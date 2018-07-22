@@ -369,13 +369,13 @@ bool CDraw::Font()
  
 void CDraw::AddFont(char* Caption, float size, bool bold, bool italic)
 {
-   D3DXCreateFont(pDevice, size, 0, (bold) ? FW_BOLD : FW_NORMAL, 1, (italic) ? 1 : 0 , DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH, Caption, &pFont[++FontNr]);
+   D3DXCreateFontA(pDevice, size, 0, (bold) ? FW_BOLD : FW_NORMAL, 1, (italic) ? 1 : 0 , DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH, Caption, &pFont[++FontNr]);
 }
- 
+
 void CDraw::FontReset()
 {
-   for(int i = 0; i < FontNr; i++) pFont[i]->OnLostDevice();
-   for(int i = 0; i < FontNr; i++) pFont[i]->OnResetDevice();
+	for (int i = 0; i < FontNr; i++) pFont[i]->OnLostDevice(); 
+	for (int i = 0; i < FontNr; i++) pFont[i]->OnResetDevice();
 }
  
 void CDraw::OnLostDevice()
