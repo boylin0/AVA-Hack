@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{1bc33c97-aa3b-4bd5-a47a-54ae9dda0e0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\drawing">
+      <UniqueIdentifier>{55364895-4268-47c5-8224-7119baf5e315}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -51,6 +57,12 @@
     <ClInclude Include="hook_function.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Lib\drawing\colors.h">
+      <Filter>lib\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\drawing\draw.h">
+      <Filter>lib\drawing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -76,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="hook_function.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\drawing\draw.cpp">
+      <Filter>lib\drawing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

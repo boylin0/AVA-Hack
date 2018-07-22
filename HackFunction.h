@@ -17,7 +17,7 @@ extern bool func_changename,
 func_wallhack,
 func_QQMacro;
 
-extern BYTE orignal_name[72];
+extern BYTE orignal_name[22];
 
 bool isFocusOnAVA();
 void DoQQMacro();
