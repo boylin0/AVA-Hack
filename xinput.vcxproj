@@ -93,7 +93,6 @@
     <ClInclude Include="d3dMenu.h" />
     <ClInclude Include="HackFunction.h" />
     <ClInclude Include="hook_function.h" />
-    <ClInclude Include="IniReader.h" />
     <ClInclude Include="Lib\drawing\colors.h" />
     <ClInclude Include="Lib\drawing\draw.h" />
     <ClInclude Include="logConsole.h" />
