@@ -19,6 +19,9 @@
     <Filter Include="lib\drawing">
       <UniqueIdentifier>{55364895-4268-47c5-8224-7119baf5e315}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\imgui">
+      <UniqueIdentifier>{0b7eb582-e1d4-4ffa-aee7-252c1c3b1e47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -60,6 +63,27 @@
     <ClInclude Include="Lib\drawing\draw.h">
       <Filter>lib\drawing</Filter>
     </ClInclude>
+    <ClInclude Include="Lib\imgui\imgui_impl_dx9.h">
+      <Filter>lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\imgui\imgui_internal.h">
+      <Filter>lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\imgui\stb_rect_pack.h">
+      <Filter>lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\imgui\stb_textedit.h">
+      <Filter>lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\imgui\stb_truetype.h">
+      <Filter>lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\imgui\imconfig.h">
+      <Filter>lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\imgui\imgui.h">
+      <Filter>lib\imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -88,6 +112,18 @@
     </ClCompile>
     <ClCompile Include="Lib\drawing\draw.cpp">
       <Filter>lib\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\imgui\imgui_draw.cpp">
+      <Filter>lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\imgui\imgui_impl_dx9.cpp">
+      <Filter>lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\imgui\imgui.cpp">
+      <Filter>lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\imgui\imgui_demo.cpp">
+      <Filter>lib\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
