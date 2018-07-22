@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "HackFunction.h"
 
-
+bool menu = false;
+HANDLE hProcess = NULL;
+DWORD baseAddress = NULL;
+BYTE orignal_name[22] = { NULL };
 
 void ToggleWallHack() {
 	func_wallhack = !func_wallhack;
@@ -63,13 +66,13 @@ bool isFocusOnAVA() {
 void DoQQMacro() {
 	if (func_QQMacro && (GetAsyncKeyState(VK_LBUTTON) & 0x1)) {
 		LoadKeyboardLayout((LPCWSTR)"00000409", KLF_ACTIVATE);
-		if(isFocusOnAVA) keybd_event(0x51, 0, 0, 0);
+		if(isFocusOnAVA()) keybd_event(0x51, 0, 0, 0);
 		Sleep(100);
-		if (isFocusOnAVA) keybd_event(0x51, 0, KEYEVENTF_KEYUP, 0);
+		if (isFocusOnAVA()) keybd_event(0x51, 0, KEYEVENTF_KEYUP, 0);
 		Sleep(100);
-		if (isFocusOnAVA) keybd_event(0x51, 0, 0, 0);
+		if (isFocusOnAVA()) keybd_event(0x51, 0, 0, 0);
 		Sleep(25);
-		if (isFocusOnAVA) keybd_event(0x51, 0, KEYEVENTF_KEYUP, 0);
+		if (isFocusOnAVA()) keybd_event(0x51, 0, KEYEVENTF_KEYUP, 0);
 		Sleep(625);
 	}
 }

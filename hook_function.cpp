@@ -1,13 +1,15 @@
 #include "stdafx.h"
 #include "hook_function.h"
-#include "lib\drawing\draw.h"
+#include "lib/drawing/draw.h"
 
+//IMGUI Library
+#include "lib/imgui/imgui.h"
+#include "lib/imgui/imgui_impl_dx9.h"
 
 //68 ªª®v head
 //68 122
 #define characterHEAD ((NumVertices == 68 && PrimitiveCount!=80) || (NumVertices == 122 && PrimitiveCount!=140) || NumVertices  == 114|| NumVertices == 282 || NumVertices == 74 || NumVertices == 194 || NumVertices == 34 || NumVertices == 26 || NumVertices == 158 ||NumVertices == 130 ||NumVertices == 254 ||NumVertices == 66 || NumVertices == 82 ||NumVertices == 50)
 PDWORD Direct3D_VMTable = NULL;
-bool fCall = true;
 
 typedef HRESULT(WINAPI* CreateDevice_Prototype)          (LPDIRECT3D9, UINT, D3DDEVTYPE, HWND, DWORD, D3DPRESENT_PARAMETERS*, LPDIRECT3DDEVICE9*);
 typedef HRESULT(WINAPI* Reset_Prototype)                 (LPDIRECT3DDEVICE9, D3DPRESENT_PARAMETERS*);
@@ -22,12 +24,8 @@ DrawIndexedPrimitive_Prototype DrawIndexedPrimitive_Pointer = NULL;
 CreateQuery_Prototype          CreateQuery_Pointer = NULL;
 
 LPD3DXFONT g_font_default;
-LPDIRECT3DTEXTURE9 texture_Red, texture_Black;
-IDirect3DPixelShader9 *Front, *Back;
-
 
 int aimheight = 0;
-bool isInitalized = false;
 D3DVIEWPORT9 g_ViewPort;
 
 class CDraw CDraw;
@@ -72,44 +70,7 @@ float GetDistance(float Xx, float Yy, float xX, float yY)
 	return sqrt((yY - Yy) * (yY - Yy) + (xX - Xx) * (xX - Xx));
 }
 
-void DrawPoint(LPDIRECT3DDEVICE9 pDevice, int baseX, int baseY, int baseW, int baseH, D3DCOLOR Cor)
-{
-	D3DRECT BarRect = { baseX, baseY, baseX + baseW, baseY + baseH };
-	pDevice->Clear(1, &BarRect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, Cor, 0, 0);
-}
-
-HRESULT WINAPI Direct3DCreate9_VMTable(VOID)
-{
-	console.startConsole();
-	console.logMessage("Console Started...\n", 0);
-
-	LPDIRECT3D9 Direct3D_Object = Direct3DCreate9(D3D_SDK_VERSION);//get D3D DeviceObject Pointer
-
-	if (Direct3D_Object == NULL)
-		return D3DERR_INVALIDCALL;
-
-	Direct3D_VMTable = (PDWORD)*(PDWORD)Direct3D_Object;
-	Direct3D_Object->Release();
-
-	DWORD dwProtect;
-
-	if (VirtualProtect(&Direct3D_VMTable[16], sizeof(DWORD), PAGE_READWRITE, &dwProtect) != 0)
-	{
-		*(PDWORD)&CreateDevice_Pointer = Direct3D_VMTable[16];
-		*(PDWORD)&Direct3D_VMTable[16] = (DWORD)CreateDevice_Detour;
-
-		if (VirtualProtect(&Direct3D_VMTable[16], sizeof(DWORD), dwProtect, &dwProtect) == 0)
-			return D3DERR_INVALIDCALL;
-	}
-	else
-		return D3DERR_INVALIDCALL;
-
-	return D3D_OK;
-}
-
-HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3DDEVTYPE DeviceType, HWND FocusWindow,
-	DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* PresentationParameters,
-	LPDIRECT3DDEVICE9* Returned_Device_Interface)
+HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3DDEVTYPE DeviceType, HWND FocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* PresentationParameters, LPDIRECT3DDEVICE9* Returned_Device_Interface)
 {
 	HRESULT Returned_Result = CreateDevice_Pointer(Direct3D_Object, Adapter, DeviceType, FocusWindow, BehaviorFlags,
 		PresentationParameters, Returned_Device_Interface);
@@ -143,42 +104,49 @@ HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3
 	return Returned_Result;
 }
 
+HRESULT WINAPI Direct3DCreate9_VMTable(VOID)
+{
+	console.startConsole();
+	console.logMessage("Console Started...\n", 0);
+
+	LPDIRECT3D9 Direct3D_Object = Direct3DCreate9(D3D_SDK_VERSION);//get D3D DeviceObject Pointer
+
+	if (Direct3D_Object == NULL)
+		return D3DERR_INVALIDCALL;
+
+	Direct3D_VMTable = (PDWORD)*(PDWORD)Direct3D_Object;
+	Direct3D_Object->Release();
+
+	DWORD dwProtect;
+
+	if (VirtualProtect(&Direct3D_VMTable[16], sizeof(DWORD), PAGE_READWRITE, &dwProtect) != 0)
+	{
+		*(PDWORD)&CreateDevice_Pointer = Direct3D_VMTable[16];
+		*(PDWORD)&Direct3D_VMTable[16] = (DWORD)CreateDevice_Detour;
+
+		if (VirtualProtect(&Direct3D_VMTable[16], sizeof(DWORD), dwProtect, &dwProtect) == 0)
+			return D3DERR_INVALIDCALL;
+	}
+	else
+		return D3DERR_INVALIDCALL;
+
+	return D3D_OK;
+}
+
+
+
 HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
 	CDraw.GetDevice(pDevice);
 	g_font_default->OnLostDevice();
 	g_font_default->OnResetDevice();
 
+	//free resources
+	ImGui_ImplDX9_InvalidateDeviceObjects();
+	ImGui_ImplDX9_CreateDeviceObjects();
 	return Reset_Pointer(pDevice, pPresentationParameters);
 }
 
-HRESULT GenerateTexture(IDirect3DDevice9 *pD3Ddev, IDirect3DTexture9 **ppD3Dtex, DWORD colour32)
-{
-	if (FAILED(pD3Ddev->CreateTexture(8, 8, 1, 0, D3DFMT_A4R4G4B4, D3DPOOL_MANAGED, ppD3Dtex, NULL)))
-		return E_FAIL;
-
-	WORD colour16 = ((WORD)((colour32 >> 28) & 0xF) << 12)
-		| (WORD)(((colour32 >> 20) & 0xF) << 8)
-		| (WORD)(((colour32 >> 12) & 0xF) << 4)
-		| (WORD)(((colour32 >> 4) & 0xF) << 0);
-	D3DLOCKED_RECT d3dlr;
-	(*ppD3Dtex)->LockRect(0, &d3dlr, 0, 0);
-	WORD *pDst16 = (WORD*)d3dlr.pBits;
-	for (int xy = 0; xy < 8 * 8; xy++)
-		*pDst16++ = colour16;
-	(*ppD3Dtex)->UnlockRect(0);
-	return S_OK;
-}
-
-HRESULT CreateMyShader(IDirect3DPixelShader9 **pShader, IDirect3DDevice9 *Device, float red, float green, float blue, float alpha)
-{
-	ID3DXBuffer *MyBuffer = NULL;
-	char MyShader[256];
-	sprintf(MyShader, "ps.1.1\ndef c0, %f, %f, %f, %f\nmov r0,c0", red / 255, green / 255, blue / 255, alpha / 255);
-	D3DXAssembleShader(MyShader, sizeof(MyShader), NULL, NULL, 0, &MyBuffer, NULL);
-	if (FAILED(Device->CreatePixelShader((const DWORD*)MyBuffer->GetBufferPointer(), pShader)))return E_FAIL;
-	return S_OK;
-}
 
 void wallhack_ghostChams(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, UINT MinIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount) {
 	//Device_Interface->SetPixelShader(Back);
@@ -249,20 +217,14 @@ void AddModel(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, U
 int foundnum = 0;
 float mouseOffset_X = 0, mouseOffset_Y = 0;
 float ScreenCenterX = NULL, ScreenCenterY = NULL;
-float mouseSmooth=2.5, minCrosshairDistance;
+float mouseSmooth=2.5, minCrosshairDistance = 500;
 
 
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 {
-	if (texture_Red == NULL) GenerateTexture(pDevice, &texture_Red, D3DCOLOR_ARGB(255, 255, 0, 0));
-	if (texture_Black == NULL) GenerateTexture(pDevice, &texture_Black, D3DCOLOR_ARGB(255, 0, 0, 0));
-	if (g_font_default == NULL)	D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default); //Create fonts
-
-	if (fCall)
-	{
-		CreateMyShader(&Front, pDevice, 255, 0, 0, 255);
-		CreateMyShader(&Back, pDevice, 0, 255, 0, 255);
-		fCall = false;
+	if (g_font_default == NULL) {
+		//Create fonts
+		D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default);
 	}
 
 	if (d3dmenu.g_font == NULL) {
@@ -304,7 +266,6 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 		for (size_t i = 0; i < ModelInfo.size(); i++)
 		{
 			
-			DrawPoint(pDevice, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y, 4, 4, D3DCOLOR_XRGB(255, 0, 0));
 			PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y - 35, D3DCOLOR_XRGB(255, 0, 0),
 				"%.1f m",
 				ModelInfo[i]->Distance);
@@ -353,7 +314,7 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 		mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X, mouseOffset_Y , 0, 0);
 
 	}
-
+	
 	return EndScene_Pointer(pDevice);
 }
 

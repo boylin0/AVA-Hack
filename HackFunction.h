@@ -10,14 +10,15 @@ extern class d3dMenu d3dmenu;
 extern class Memory Memory;
 extern class logConsole console;
 
-extern HANDLE hProcess;
-extern DWORD baseAddress;
+extern HANDLE hProcess ;
+extern DWORD baseAddress ;
+extern bool menu;
 
 extern bool func_changename,
-func_wallhack,
-func_QQMacro;
+			func_wallhack,
+			func_QQMacro;
 
-extern BYTE orignal_name[22];
+
 
 bool isFocusOnAVA();
 void DoQQMacro();

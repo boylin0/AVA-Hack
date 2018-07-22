@@ -7,31 +7,17 @@
 #include "HackFunction.h"
 #include "hook_function.h"
 
-using namespace std;
-
-//D3D
-//=====================================================================================
-
-DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID);
-
-//=====================================================================================
+//IMGUI Library
+#include "lib/imgui/imgui.h"
+#include "lib/imgui/imgui_impl_dx9.h"
 
 class Memory Memory;
 class d3dMenu d3dmenu;
 class logConsole console;
 
-//process details
-HANDLE hProcess;
-DWORD baseAddress;
-
-bool menu = false;
-
-bool func_changename = false,
-	 func_wallhack = false,
-	 func_QQMacro = false;
-
-BYTE orignal_name[22] = { NULL };
-
+bool func_changename,
+	 func_wallhack,
+	 func_QQMacro;
 
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved )
 {
@@ -57,7 +43,6 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 	baseAddress = Memory.getModuleBase(L"AVA.exe", GetCurrentProcessId());
 
 	//start logConsole
-	
 	console.logMessage("Game Window Started", 0);
 
 	while (1)

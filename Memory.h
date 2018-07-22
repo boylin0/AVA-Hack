@@ -1,7 +1,6 @@
 #pragma once
 #include "stdafx.h"
 
-
 class Memory{
 public:
 	DWORD getModuleBase(const wchar_t* ModuleName, DWORD procID);
