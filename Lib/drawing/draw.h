@@ -1,5 +1,4 @@
-#ifndef _DRAW_H_
-#define _DRAW_H_
+#pragma once
  
 #include <d3d9.h>
 #include <d3dx9.h>
@@ -68,10 +67,8 @@ private:
    LPDIRECT3DVERTEXBUFFER9 g_pVB;    // Buffer to hold vertices
    LPDIRECT3DINDEXBUFFER9  g_pIB;    // Buffer to hold indices
  
-   int FontNr;
+   int FontNr = 0;
    LPD3DXSPRITE sSprite;   
 };
  
-extern CDraw Draw;
  
-#endif /* _DRAW_H_ */
