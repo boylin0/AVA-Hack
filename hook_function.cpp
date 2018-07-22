@@ -218,7 +218,8 @@ int foundnum = 0;
 float mouseOffset_X = 0, mouseOffset_Y = 0;
 float ScreenCenterX = NULL, ScreenCenterY = NULL;
 float mouseSmooth=2.5, minCrosshairDistance = 500;
-
+ModelInfo_t* targetModel = new ModelInfo_t;
+ModelInfo_t* focusModel = new ModelInfo_t;
 
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 {
@@ -253,7 +254,7 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 	foundnum = 0;
 	minCrosshairDistance = 500;
 
-	ModelInfo_t* TargetModel = new ModelInfo_t;
+	
 	if (ModelInfo.size() != NULL)
 	{
 		D3DDEVICE_CREATION_PARAMETERS cparams;
@@ -266,21 +267,13 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 		for (size_t i = 0; i < ModelInfo.size(); i++)
 		{
 			
-			PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y - 35, D3DCOLOR_XRGB(255, 0, 0),
+			PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x - 10, (int)ModelInfo[i]->Position2D.y , D3DCOLOR_XRGB(255, 0, 0),
 				"%.1f m",
 				ModelInfo[i]->Distance);
 			
 			if (minCrosshairDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
-				&& GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
-				TargetModel->Position2D.x = ModelInfo[i]->Position2D.x;
-				TargetModel->Position2D.y = ModelInfo[i]->Position2D.y;
-				TargetModel->Position2D.z = ModelInfo[i]->Position2D.z;
-				TargetModel->Type = ModelInfo[i]->Type;
-				TargetModel->BaseIndex = ModelInfo[i]->BaseIndex;
-				TargetModel->MinIndex = ModelInfo[i]->MinIndex;
-				TargetModel->NumVertices = ModelInfo[i]->NumVertices;
-				TargetModel->StartIndex = ModelInfo[i]->StartIndex;
-				TargetModel->PrimitiveCount = ModelInfo[i]->PrimitiveCount;
+				&& GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300 ) {
+				targetModel = ModelInfo[i];
 				minCrosshairDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
 				foundnum++;
 			}
@@ -293,28 +286,29 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 	if (GetAsyncKeyState(0x4) && foundnum > 0 ) {
 
 		//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
-		CDraw.Circle(TargetModel->Position2D.x, TargetModel->Position2D.y, 20, 0, full, true, 3, LAWNGREEN(255));
+		CDraw.Circle(targetModel->Position2D.x, targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
 		
-		mouseOffset_X = (TargetModel->Position2D.x - ScreenCenterX) / mouseSmooth;
-		mouseOffset_Y = (TargetModel->Position2D.y - ScreenCenterY + 17) / mouseSmooth;
+		mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX) / mouseSmooth;
+		mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 17) / mouseSmooth;
 
 		if (mouseOffset_X >= 50)
-			mouseOffset_X = (TargetModel->Position2D.x - ScreenCenterX) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
+			mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
 
 		if (mouseOffset_Y >= 50)
-			mouseOffset_Y = (TargetModel->Position2D.y - ScreenCenterY + 17) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
+			mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 17) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
 
-		mouseOffset_X += 3;
+		mouseOffset_X += 2;
 
 		printf("ScreenCenterX:%f ScreenCenterY:%f\n", ScreenCenterX, ScreenCenterY);
-		printf("minX:%f minY:%f minDistance:%f\n", TargetModel->Position2D.x, TargetModel->Position2D.y, minCrosshairDistance);
-		printf("mouseOffset X:%f Y:%f (actual: X:%f Y:%f)\n", (TargetModel->Position2D.x - ScreenCenterX), (TargetModel->Position2D.y - ScreenCenterY), mouseOffset_X, mouseOffset_Y);
+		printf("minX:%f minY:%f minDistance:%f\n", targetModel->Position2D.x, targetModel->Position2D.y, minCrosshairDistance);
+		printf("mouseOffset X:%f Y:%f (actual: X:%f Y:%f)\n", (targetModel->Position2D.x - ScreenCenterX), (targetModel->Position2D.y - ScreenCenterY), mouseOffset_X, mouseOffset_Y);
 		printf("\n");
-
+		
 		mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X, mouseOffset_Y , 0, 0);
-
+		
 	}
 	
+
 	return EndScene_Pointer(pDevice);
 }
 
@@ -325,9 +319,6 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 	if (pDevice->GetStreamSource(0, &Stream_Data, &Offset, &Stride) == D3D_OK) Stream_Data->Release();
 
-
-
-
 	if (func_wallhack && Stride == 32 && StartIndex == 0)
 	{
 		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
@@ -335,7 +326,6 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 			AddModel(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		}
 	}
-
 
 	if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 	{
@@ -354,12 +344,9 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 HRESULT WINAPI CreateQuery_Detour(LPDIRECT3DDEVICE9 pDevice, D3DQUERYTYPE Type, IDirect3DQuery9** ppQuery)
 {
-
-		if (Type == D3DQUERYTYPE_OCCLUSION)
-		{
-			Type = D3DQUERYTYPE_TIMESTAMP;
-		}
-	
+	if (Type == D3DQUERYTYPE_OCCLUSION) {
+		Type = D3DQUERYTYPE_TIMESTAMP;
+	}
 	return CreateQuery_Pointer(pDevice, Type, ppQuery);
 }
 
