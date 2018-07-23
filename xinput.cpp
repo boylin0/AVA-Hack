@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "xinput.h"
 #include "XInputModuleManager.h"
-#include "IniReader.h"
 
 #include <iostream>
 #include <sstream>
