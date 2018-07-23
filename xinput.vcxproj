@@ -90,6 +90,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="aimbot.h" />
     <ClInclude Include="d3dMenu.h" />
     <ClInclude Include="HackFunction.h" />
     <ClInclude Include="hook_function.h" />
@@ -111,6 +112,7 @@
     <ClInclude Include="XInputModuleManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="aimbot.cpp" />
     <ClCompile Include="d3dMenu.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>

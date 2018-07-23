@@ -22,6 +22,15 @@
     <Filter Include="lib\imgui">
       <UniqueIdentifier>{0b7eb582-e1d4-4ffa-aee7-252c1c3b1e47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8d5fa837-51fd-4fc1-839d-97849e92c345}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\function">
+      <UniqueIdentifier>{8f57b9c1-ae32-4825-8989-d5e787a2e86b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\function\aimbot">
+      <UniqueIdentifier>{365040bb-edfd-4e36-a6da-dfc137e72302}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -84,6 +93,9 @@
     <ClInclude Include="Lib\imgui\imgui.h">
       <Filter>lib\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="aimbot.h">
+      <Filter>src\function\aimbot</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -124,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="Lib\imgui\imgui_demo.cpp">
       <Filter>lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="aimbot.cpp">
+      <Filter>src\function\aimbot</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

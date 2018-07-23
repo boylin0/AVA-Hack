@@ -2,6 +2,8 @@
 #include "hook_function.h"
 #include "lib/drawing/draw.h"
 
+#include "aimbot.h"
+
 //IMGUI Library
 #include "lib/imgui/imgui.h"
 #include "lib/imgui/imgui_impl_dx9.h"
@@ -25,50 +27,13 @@ CreateQuery_Prototype          CreateQuery_Pointer = NULL;
 
 LPD3DXFONT g_font_default;
 
-int aimheight = 0;
-D3DVIEWPORT9 g_ViewPort;
+
+
 
 class CDraw CDraw;
 
 
-struct ModelInfo_t
-{
-	D3DXVECTOR3 Position2D;
-	D3DXVECTOR3 Position3D;
-	float Distance;
-	D3DPRIMITIVETYPE Type;
-	INT BaseIndex; 
-	UINT MinIndex; 
-	UINT NumVertices; 
-	UINT StartIndex; 
-	UINT PrimitiveCount;
-};
 
-vector<ModelInfo_t*>ModelInfo;
-
-void PrintText(LPD3DXFONT Font, long x, long y, D3DCOLOR fontColor, char *text, ...)
-{
-	RECT rct;
-	rct.left = x - 1;
-	rct.right = x + 1;
-	rct.top = y - 1;
-	rct.bottom = y + 1;
-
-	if (!text) { return; }
-
-	char buf[256] = { 0 };
-	RECT FontRect = { x, y, x, y };
-	va_list va_alist;
-	va_start(va_alist, text);
-	vsprintf(buf, text, va_alist);
-	va_end(va_alist);
-	g_font_default->DrawTextA(NULL, buf, -1, &rct, DT_NOCLIP, fontColor);
-}
-
-float GetDistance(float Xx, float Yy, float xX, float yY)
-{
-	return sqrt((yY - Yy) * (yY - Yy) + (xX - Xx) * (xX - Xx));
-}
 
 HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3DDEVTYPE DeviceType, HWND FocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* PresentationParameters, LPDIRECT3DDEVICE9* Returned_Device_Interface)
 {
@@ -176,50 +141,8 @@ void wallhack_ghostChams(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT B
 	//Device_Interface->SetPixelShader(Back);
 }
 
-void AddModel(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, UINT MinIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount)
-{
-	ModelInfo_t* pModel = new ModelInfo_t;
 
-	pDevice->GetViewport(&g_ViewPort);
-	
-	D3DXMATRIX pProjection, pView, pWorld;
-	D3DXVECTOR3 vOut(0, 0, 0), vIn(0, (float)aimheight, 1);
 
-	pDevice->GetVertexShaderConstantF(0, pProjection, 4);
-	pDevice->GetVertexShaderConstantF(230, pView, 4);
-
-	D3DXMatrixIdentity(&pWorld);
-
-	D3DXVECTOR3 VectorMiddle(0, 0, 0), ScreenMiddlee(0, 0, 0);
-	D3DXVec3Unproject(&VectorMiddle, &ScreenMiddlee, &g_ViewPort, &pProjection, &pView, &pWorld);
-
-	D3DXVec3Project(&vOut, &vIn, &g_ViewPort, &pProjection, &pView, &pWorld);
-
-	float RealDistance = GetDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100;
-	
-	if (vOut.z < 1.0f)
-	{
-		pModel->Position2D.y = vOut.y;
-		pModel->Position2D.x = vOut.x;
-		pModel->Position2D.z = vOut.z;
-		pModel->Distance = RealDistance;
-		pModel->Type = Type;
-		pModel->BaseIndex = BaseIndex;
-		pModel->MinIndex = MinIndex;
-		pModel->NumVertices = NumVertices;
-		pModel->StartIndex = StartIndex;
-		pModel->PrimitiveCount = PrimitiveCount;
-	}
-
-	ModelInfo.push_back(pModel);
-}
-
-bool isFoundTarget = false, isFocusTargetSet = false;
-float mouseOffset_X = 0, mouseOffset_Y = 0;
-float ScreenCenterX = NULL, ScreenCenterY = NULL;
-float mouseSmooth=2.5, minCrosshairDistance = 500;
-ModelInfo_t* targetModel = new ModelInfo_t;
-ModelInfo_t* focusModel = new ModelInfo_t;
 
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 {
@@ -251,83 +174,9 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 	}
 
 
-	isFoundTarget = false;
-	minCrosshairDistance = 500;
+	function::aimbot::SearchTarget(pDevice);
+	function::aimbot::doAim();
 
-	
-	if (ModelInfo.size() != NULL)
-	{
-		D3DDEVICE_CREATION_PARAMETERS cparams;
-		RECT rect;
-		pDevice->GetCreationParameters(&cparams);
-		GetWindowRect(cparams.hFocusWindow, &rect);
-		if (ScreenCenterX == NULL) ScreenCenterX = (rect.right - rect.left) / 2.0f;
-		if (ScreenCenterY == NULL) ScreenCenterY = (rect.bottom - rect.top) / 2.0f;
-
-		for (size_t i = 0; i < ModelInfo.size(); i++)
-		{
-			
-			PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x - 10, (int)ModelInfo[i]->Position2D.y , D3DCOLOR_XRGB(255, 0, 0),
-				"%.1f m",
-				ModelInfo[i]->Distance);
-			
-			if (isFocusTargetSet) {
-				if (ModelInfo[i]->BaseIndex == focusModel->BaseIndex
-					&& ModelInfo[i]->MinIndex == focusModel->MinIndex
-					&& ModelInfo[i]->StartIndex == focusModel->StartIndex
-					&& ModelInfo[i]->Type == focusModel->Type
-					&& ModelInfo[i]->NumVertices == focusModel->NumVertices
-					&& ModelInfo[i]->PrimitiveCount == focusModel->PrimitiveCount
-					&& minCrosshairDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
-					&& GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
-					targetModel = ModelInfo[i];
-					minCrosshairDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
-					isFoundTarget = true;
-				}
-
-			} else if (minCrosshairDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
-				&& GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
-				targetModel = ModelInfo[i];
-				minCrosshairDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
-				//isFocusTargetSet = false; // new FocusTarget
-				isFoundTarget = true;
-			}
-			
-		}
-
-		ModelInfo.clear();
-	}
-
-	if ( GetAsyncKeyState(0x4) ) {
-		if (isFoundTarget) {
-			//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
-			CDraw.Circle(targetModel->Position2D.x, targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
-
-			mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX) / mouseSmooth;
-			mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 17) / mouseSmooth;
-
-			if (mouseOffset_X >= 50)
-				mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
-
-			if (mouseOffset_Y >= 50)
-				mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 17) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
-
-			mouseOffset_X += 1;
-
-			printf("ScreenCenterX:%f ScreenCenterY:%f\n", ScreenCenterX, ScreenCenterY);
-			printf("minX:%f minY:%f minDistance:%f\n", targetModel->Position2D.x, targetModel->Position2D.y, minCrosshairDistance);
-			printf("mouseOffset X:%f Y:%f (actual: X:%f Y:%f)\n", (targetModel->Position2D.x - ScreenCenterX), (targetModel->Position2D.y - ScreenCenterY), mouseOffset_X, mouseOffset_Y);
-			printf("\n");
-
-			mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X, mouseOffset_Y, 0, 0);
-		}
-		if (!isFocusTargetSet) {
-			focusModel = targetModel;
-			isFocusTargetSet = true;
-		}
-	} else {
-		isFocusTargetSet = false;
-	}
 	
 
 	return EndScene_Pointer(pDevice);
@@ -344,20 +193,20 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 	{
 		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		if (characterHEAD) {
-			AddModel(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
+			function::aimbot::AddModel(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		}
 	}
 
 	if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 	{
-		mouseSmooth += 0.1f;
-		cout << "mouseSmooth:" << mouseSmooth << endl;
+		function::aimbot::mouseSmooth += 0.1f;
+		cout << "mouseSmooth:" << function::aimbot::mouseSmooth << endl;
 	}
 
 	if (GetAsyncKeyState(VK_NUMPAD8) & 1)
 	{
-		mouseSmooth -= 0.1f;
-		cout << "mouseSmooth:" << mouseSmooth << endl;
+		function::aimbot::mouseSmooth -= 0.1f;
+		cout << "mouseSmooth:" << function::aimbot::mouseSmooth << endl;
 	}
 
 	return DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);

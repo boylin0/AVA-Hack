@@ -2,10 +2,6 @@
 #include "stdafx.h"
 #include "d3dMenu.h"
 
-#include <vector>
-
-
-
 using namespace std;
 
 class d3dMenu {
