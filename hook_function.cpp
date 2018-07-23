@@ -181,7 +181,7 @@ void AddModel(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, U
 	ModelInfo_t* pModel = new ModelInfo_t;
 
 	pDevice->GetViewport(&g_ViewPort);
-
+	
 	D3DXMATRIX pProjection, pView, pWorld;
 	D3DXVECTOR3 vOut(0, 0, 0), vIn(0, (float)aimheight, 1);
 
@@ -196,8 +196,8 @@ void AddModel(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, U
 	D3DXVec3Project(&vOut, &vIn, &g_ViewPort, &pProjection, &pView, &pWorld);
 
 	float RealDistance = GetDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100;
-
-	if (vOut.z < 1.0f)
+	
+	if (vOut.z < 0.1f)
 	{
 		pModel->Position2D.y = vOut.y;
 		pModel->Position2D.x = vOut.x;
@@ -214,7 +214,7 @@ void AddModel(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, U
 	ModelInfo.push_back(pModel);
 }
 
-int foundnum = 0;
+bool isFoundTarget = false, isFocusTargetSet = false;
 float mouseOffset_X = 0, mouseOffset_Y = 0;
 float ScreenCenterX = NULL, ScreenCenterY = NULL;
 float mouseSmooth=2.5, minCrosshairDistance = 500;
@@ -251,7 +251,7 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 	}
 
 
-	foundnum = 0;
+	isFoundTarget = false;
 	minCrosshairDistance = 500;
 
 	
@@ -271,41 +271,62 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 				"%.1f m",
 				ModelInfo[i]->Distance);
 			
-			if (minCrosshairDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
-				&& GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300 ) {
+			if (isFocusTargetSet) {
+				if (ModelInfo[i]->BaseIndex == focusModel->BaseIndex
+					&& ModelInfo[i]->MinIndex == focusModel->MinIndex
+					&& ModelInfo[i]->StartIndex == focusModel->StartIndex
+					&& ModelInfo[i]->Type == focusModel->Type
+					&& ModelInfo[i]->NumVertices == focusModel->NumVertices
+					&& ModelInfo[i]->PrimitiveCount == focusModel->PrimitiveCount
+					&& minCrosshairDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
+					&& GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
+					targetModel = ModelInfo[i];
+					minCrosshairDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
+					isFoundTarget = true;
+				}
+
+			} else if (minCrosshairDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
+				&& GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
 				targetModel = ModelInfo[i];
 				minCrosshairDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
-				foundnum++;
+				//isFocusTargetSet = false; // new FocusTarget
+				isFoundTarget = true;
 			}
-
+			
 		}
 
 		ModelInfo.clear();
 	}
 
-	if (GetAsyncKeyState(0x4) && foundnum > 0 ) {
+	if ( GetAsyncKeyState(0x4) ) {
+		if (isFoundTarget) {
+			//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
+			CDraw.Circle(targetModel->Position2D.x, targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
 
-		//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
-		CDraw.Circle(targetModel->Position2D.x, targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
-		
-		mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX) / mouseSmooth;
-		mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 17) / mouseSmooth;
+			mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX) / mouseSmooth;
+			mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 17) / mouseSmooth;
 
-		if (mouseOffset_X >= 50)
-			mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
+			if (mouseOffset_X >= 50)
+				mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
 
-		if (mouseOffset_Y >= 50)
-			mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 17) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
+			if (mouseOffset_Y >= 50)
+				mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 17) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
 
-		mouseOffset_X += 2;
+			mouseOffset_X += 1;
 
-		printf("ScreenCenterX:%f ScreenCenterY:%f\n", ScreenCenterX, ScreenCenterY);
-		printf("minX:%f minY:%f minDistance:%f\n", targetModel->Position2D.x, targetModel->Position2D.y, minCrosshairDistance);
-		printf("mouseOffset X:%f Y:%f (actual: X:%f Y:%f)\n", (targetModel->Position2D.x - ScreenCenterX), (targetModel->Position2D.y - ScreenCenterY), mouseOffset_X, mouseOffset_Y);
-		printf("\n");
-		
-		mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X, mouseOffset_Y , 0, 0);
-		
+			printf("ScreenCenterX:%f ScreenCenterY:%f\n", ScreenCenterX, ScreenCenterY);
+			printf("minX:%f minY:%f minDistance:%f\n", targetModel->Position2D.x, targetModel->Position2D.y, minCrosshairDistance);
+			printf("mouseOffset X:%f Y:%f (actual: X:%f Y:%f)\n", (targetModel->Position2D.x - ScreenCenterX), (targetModel->Position2D.y - ScreenCenterY), mouseOffset_X, mouseOffset_Y);
+			printf("\n");
+
+			mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X, mouseOffset_Y, 0, 0);
+		}
+		if (!isFocusTargetSet) {
+			focusModel = targetModel;
+			isFocusTargetSet = true;
+		}
+	} else {
+		isFocusTargetSet = false;
 	}
 	
 
