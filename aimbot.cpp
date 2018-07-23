@@ -24,7 +24,7 @@ namespace function {
 
 		bool isFoundTarget = false, isFocusTargetSet = false;
 		int mouseOffset_X = 0, mouseOffset_Y = 0, ScreenCenterX = NULL, ScreenCenterY = NULL;
-		float mouseSmooth = 3, minCrosshairDistance = 500;
+		float mouseSmooth = 4, minCrosshairDistance = 500;
 
 		D3DVIEWPORT9 g_ViewPort;
 		int aimheight = 0;
@@ -147,16 +147,16 @@ namespace function {
 					//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
 					CDraw.Circle(targetModel->Position2D.x, targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
 
-					mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX) / mouseSmooth;
-					mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 14) / mouseSmooth;
+					mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX +  3 ) / mouseSmooth;
+					mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 14 ) / mouseSmooth;
 
 					if (mouseOffset_X >= 50)
-						mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
+						mouseOffset_X = int((targetModel->Position2D.x - ScreenCenterX +  3 ) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f)) + 0.5);
 
 					if (mouseOffset_Y >= 50)
-						mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 17) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
+						mouseOffset_Y = int((targetModel->Position2D.y - ScreenCenterY + 14 ) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f)) + 0.5);
 
-					mouseOffset_X += 1;
+
 
 					printf("ScreenCenterX:%d ScreenCenterY:%d\n", ScreenCenterX, ScreenCenterY);
 					printf("minX:%f minY:%f minDistance:%f\n", targetModel->Position2D.x, targetModel->Position2D.y, minCrosshairDistance);
