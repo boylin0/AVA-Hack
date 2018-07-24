@@ -3,8 +3,6 @@
 #include "lib/drawing/draw.h"
 #include <vector>
 
-using namespace function::common;
-
 namespace function {
 	namespace aimbot {
 	
@@ -32,6 +30,10 @@ namespace function {
 		ModelInfo_t* targetModel = new ModelInfo_t;
 		ModelInfo_t* focusModel = new ModelInfo_t;
 		vector<ModelInfo_t*>ModelInfo;
+
+		float getDistance(float Xx, float Yy, float xX, float yY) {
+			return sqrt((yY - Yy) * (yY - Yy) + (xX - Xx) * (xX - Xx));
+		}
 
 		void PrintText(LPD3DXFONT gFont, long x, long y, D3DCOLOR fontColor, char *text, ...)
 		{

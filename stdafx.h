@@ -27,9 +27,3 @@
 
 // TODO: reference additional headers your program requires here
 using namespace std;
-
-namespace function {
-	namespace common {
-		float getDistance(float Xx, float Yy, float xX, float yY);
-	}
-}
