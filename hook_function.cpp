@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "hook_function.h"
 #include "lib/drawing/draw.h"
-
 #include "aimbot.h"
 
 //IMGUI Library
@@ -11,6 +10,9 @@
 //68 ªª®v head
 //68 122
 #define characterHEAD ((NumVertices == 68 && PrimitiveCount!=80) || (NumVertices == 122 && PrimitiveCount!=140) || NumVertices  == 114|| NumVertices == 282 || NumVertices == 74 || NumVertices == 194 || NumVertices == 34 || NumVertices == 26 || NumVertices == 158 ||NumVertices == 130 ||NumVertices == 254 ||NumVertices == 66 || NumVertices == 82 ||NumVertices == 50)
+
+using namespace function;
+
 PDWORD Direct3D_VMTable = NULL;
 
 typedef HRESULT(WINAPI* CreateDevice_Prototype)          (LPDIRECT3D9, UINT, D3DDEVTYPE, HWND, DWORD, D3DPRESENT_PARAMETERS*, LPDIRECT3DDEVICE9*);
@@ -65,8 +67,8 @@ HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3
 
 HRESULT WINAPI Direct3DCreate9_VMTable(VOID)
 {
-	console.startConsole();
-	console.logMessage("Console Started...\n", 0);
+	console::start();
+	console::message("Console Started...\n", 0);
 
 	LPDIRECT3D9 Direct3D_Object = Direct3DCreate9(D3D_SDK_VERSION);//get D3D DeviceObject Pointer
 

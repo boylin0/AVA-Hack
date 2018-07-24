@@ -2,7 +2,6 @@
 #include "stdafx.h"
 
 #include "Memory.h"
-#include "logConsole.h"
 #include "d3dmenu.h"
 #include "HackFunction.h"
 #include "hook_function.h"
@@ -11,9 +10,10 @@
 #include "lib/imgui/imgui.h"
 #include "lib/imgui/imgui_impl_dx9.h"
 
+using namespace function;
+
 class Memory Memory;
 class d3dMenu d3dmenu;
-class logConsole console;
 
 bool func_changename,
 	 func_wallhack,
@@ -43,7 +43,7 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 	baseAddress = Memory.getModuleBase(L"AVA.exe", GetCurrentProcessId());
 
 	//start logConsole
-	console.logMessage("Game Window Started", 0);
+	console::message("Game Window Started", 0);
 
 	while (1)
 	{
@@ -52,23 +52,23 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 
 			if ((GetAsyncKeyState(VK_HOME) & 0x1)) {
 				menu = !menu;
-				console.logMessage("Menu:", 3, true, true, false);
-				console.logMessage( (menu == 1 ? "On":"Off") , 3, false, false, true);
+				console::message("Menu:", 3, true, true, false);
+				console::message( (menu == 1 ? "On":"Off") , 3, false, false, true);
 			}
 			if ((GetAsyncKeyState(VK_F4) & 0x1) && menu) {
 				ToggleWallHack();
-				console.logMessage("function_wallhack:", 3, true, true, false);
-				console.logMessage( (func_wallhack == 1 ? "On" : "Off") , 3, false, false, true);
+				console::message("function_wallhack:", 3, true, true, false);
+				console::message( (func_wallhack == 1 ? "On" : "Off") , 3, false, false, true);
 			}
 			if ((GetAsyncKeyState(VK_F5) & 0x1) && menu) {
 				ToggleChangeName();
-				console.logMessage("function_changename:", 3, true, true, false);
-				console.logMessage( (func_changename == 1 ? "On" : "Off") , 3, false, false, true);
+				console::message("function_changename:", 3, true, true, false);
+				console::message( (func_changename == 1 ? "On" : "Off") , 3, false, false, true);
 			}
 			if ((GetAsyncKeyState(VK_F6) & 0x1) && menu) {
 				ToggleQQMacro();
-				console.logMessage("function_QQMacro:", 3, true, true, false);
-				console.logMessage( (func_QQMacro == 1 ? "On" : "Off") , 3, false, false, true);
+				console::message("function_QQMacro:", 3, true, true, false);
+				console::message( (func_QQMacro == 1 ? "On" : "Off") , 3, false, false, true);
 			}
 			
 			DoQQMacro();
