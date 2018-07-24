@@ -47,8 +47,14 @@
     <Filter Include="src\function\hack">
       <UniqueIdentifier>{b2da3869-7c61-4700-9997-fb60aababb63}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\function\logConsole">
+    <Filter Include="src\function\console">
       <UniqueIdentifier>{fbb5dfa0-0c69-4ddc-93d1-88543a07be6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\function\QQMacro">
+      <UniqueIdentifier>{148977f8-d161-4225-8c23-e7d0db3cc6ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\function\utils">
+      <UniqueIdentifier>{d5c9c05a-0a9d-424c-b3b4-2fdaed3fcab6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -113,7 +119,13 @@
       <Filter>src\function\hack</Filter>
     </ClInclude>
     <ClInclude Include="logConsole.h">
-      <Filter>src\function\logConsole</Filter>
+      <Filter>src\function\console</Filter>
+    </ClInclude>
+    <ClInclude Include="QQMacro.h">
+      <Filter>src\function\QQMacro</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>src\function\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -155,7 +167,13 @@
       <Filter>src\function\hack</Filter>
     </ClCompile>
     <ClCompile Include="logConsole.cpp">
-      <Filter>src\function\logConsole</Filter>
+      <Filter>src\function\console</Filter>
+    </ClCompile>
+    <ClCompile Include="QQMacro.cpp">
+      <Filter>src\function\QQMacro</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>src\function\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
