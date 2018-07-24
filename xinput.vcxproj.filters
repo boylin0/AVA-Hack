@@ -13,15 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="lib">
-      <UniqueIdentifier>{1bc33c97-aa3b-4bd5-a47a-54ae9dda0e0c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\drawing">
-      <UniqueIdentifier>{55364895-4268-47c5-8224-7119baf5e315}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\imgui">
-      <UniqueIdentifier>{0b7eb582-e1d4-4ffa-aee7-252c1c3b1e47}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8d5fa837-51fd-4fc1-839d-97849e92c345}</UniqueIdentifier>
     </Filter>
@@ -30,6 +21,21 @@
     </Filter>
     <Filter Include="src\function\aimbot">
       <UniqueIdentifier>{365040bb-edfd-4e36-a6da-dfc137e72302}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lib">
+      <UniqueIdentifier>{1bc33c97-aa3b-4bd5-a47a-54ae9dda0e0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lib\drawing">
+      <UniqueIdentifier>{55364895-4268-47c5-8224-7119baf5e315}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lib\imgui">
+      <UniqueIdentifier>{0b7eb582-e1d4-4ffa-aee7-252c1c3b1e47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lib\xinput_wrapper">
+      <UniqueIdentifier>{fa2f929b-8db0-4e8a-a4ad-2b57aa54506a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\d3d">
+      <UniqueIdentifier>{de7877d2-38e5-450e-b040-046a31a0260b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -40,12 +46,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="XInputModuleManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="xinput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -63,45 +63,48 @@
     <ClInclude Include="HackFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hook_function.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Lib\drawing\colors.h">
-      <Filter>lib\drawing</Filter>
+      <Filter>src\lib\drawing</Filter>
     </ClInclude>
     <ClInclude Include="Lib\drawing\draw.h">
-      <Filter>lib\drawing</Filter>
+      <Filter>src\lib\drawing</Filter>
     </ClInclude>
     <ClInclude Include="Lib\imgui\imgui_impl_dx9.h">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Lib\imgui\imgui_internal.h">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Lib\imgui\stb_rect_pack.h">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Lib\imgui\stb_textedit.h">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Lib\imgui\stb_truetype.h">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Lib\imgui\imconfig.h">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Lib\imgui\imgui.h">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClInclude>
     <ClInclude Include="aimbot.h">
       <Filter>src\function\aimbot</Filter>
     </ClInclude>
+    <ClInclude Include="XInputModuleManager.h">
+      <Filter>src\lib\xinput_wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="xinput.h">
+      <Filter>src\lib\xinput_wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="hook_function.h">
+      <Filter>src\d3d</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xinput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Memory.cpp">
@@ -116,37 +119,40 @@
     <ClCompile Include="HackFunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hook_function.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Lib\drawing\draw.cpp">
-      <Filter>lib\drawing</Filter>
+      <Filter>src\lib\drawing</Filter>
     </ClCompile>
     <ClCompile Include="Lib\imgui\imgui_draw.cpp">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Lib\imgui\imgui_impl_dx9.cpp">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Lib\imgui\imgui.cpp">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Lib\imgui\imgui_demo.cpp">
-      <Filter>lib\imgui</Filter>
+      <Filter>src\lib\imgui</Filter>
     </ClCompile>
     <ClCompile Include="aimbot.cpp">
       <Filter>src\function\aimbot</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="xinput.def">
-      <Filter>Source Files</Filter>
-    </None>
+    <ClCompile Include="xinput.cpp">
+      <Filter>src\lib\xinput_wrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="hook_function.cpp">
+      <Filter>src\d3d</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="xinput.def">
+      <Filter>src\lib\xinput_wrapper</Filter>
+    </None>
   </ItemGroup>
 </Project>

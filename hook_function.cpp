@@ -26,13 +26,7 @@ DrawIndexedPrimitive_Prototype DrawIndexedPrimitive_Pointer = NULL;
 CreateQuery_Prototype          CreateQuery_Pointer = NULL;
 
 LPD3DXFONT g_font_default;
-
-
-
-
 class CDraw CDraw;
-
-
 
 
 HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3DDEVTYPE DeviceType, HWND FocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* PresentationParameters, LPDIRECT3DDEVICE9* Returned_Device_Interface)
