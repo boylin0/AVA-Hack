@@ -73,19 +73,16 @@ namespace function {
 
 			float RealDistance = getDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100;
 
-			if (vOut.z < 1.0f)
-			{
-				pModel->Position2D.y = vOut.y;
-				pModel->Position2D.x = vOut.x;
-				pModel->Position2D.z = vOut.z;
-				pModel->Distance = RealDistance;
-				pModel->Type = Type;
-				pModel->BaseIndex = BaseIndex;
-				pModel->MinIndex = MinIndex;
-				pModel->NumVertices = NumVertices;
-				pModel->StartIndex = StartIndex;
-				pModel->PrimitiveCount = PrimitiveCount;
-			}
+			pModel->Position2D.y = vOut.y;
+			pModel->Position2D.x = vOut.x;
+			pModel->Position2D.z = vOut.z;
+			pModel->Distance = RealDistance;
+			pModel->Type = Type;
+			pModel->BaseIndex = BaseIndex;
+			pModel->MinIndex = MinIndex;
+			pModel->NumVertices = NumVertices;
+			pModel->StartIndex = StartIndex;
+			pModel->PrimitiveCount = PrimitiveCount;
 
 			ModelInfo.push_back(pModel);
 		}
@@ -121,6 +118,7 @@ namespace function {
 							&& ModelInfo[i]->PrimitiveCount == focusModel->PrimitiveCount
 							&& minCrosshairDistance > getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
 							&& getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
+							focusModel->Distance = ModelInfo[i]->Distance;
 							targetModel = ModelInfo[i];
 							minCrosshairDistance = getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
 							isFoundTarget = true;
@@ -151,12 +149,14 @@ namespace function {
 					mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 14 ) / mouseSmooth;
 
 					if (mouseOffset_X >= 50)
-						mouseOffset_X = int((targetModel->Position2D.x - ScreenCenterX +  3 ) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f)) + 0.5);
+						mouseOffset_X = int((targetModel->Position2D.x - ScreenCenterX +  3 ) / ((mouseSmooth * 0.55f) < 1 ? 1 : (mouseSmooth * 0.55f)) + 0.5);
+					//if (mouseOffset_X >= 3 && mouseOffset_X <= 50)
+					//mouseOffset_X = int((targetModel->Position2D.x - ScreenCenterX + 3) / ((mouseSmooth * 0.7f) < 1 ? 1 : (mouseSmooth * 0.7f)) + 0.5);
 
 					if (mouseOffset_Y >= 50)
-						mouseOffset_Y = int((targetModel->Position2D.y - ScreenCenterY + 14 ) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f)) + 0.5);
-
-
+						mouseOffset_Y = int((targetModel->Position2D.y - ScreenCenterY + 14 ) / ((mouseSmooth * 0.55f) < 1 ? 1 : (mouseSmooth * 0.55f)) + 0.5);
+					//if (mouseOffset_X >= 3 && mouseOffset_X <= 50)
+					//mouseOffset_Y = int((targetModel->Position2D.y - ScreenCenterY + 14) / ((mouseSmooth * 0.7f) < 1 ? 1 : (mouseSmooth * 0.7f)) + 0.5);
 
 					printf("ScreenCenterX:%d ScreenCenterY:%d\n", ScreenCenterX, ScreenCenterY);
 					printf("minX:%f minY:%f minDistance:%f\n", targetModel->Position2D.x, targetModel->Position2D.y, minCrosshairDistance);
