@@ -101,8 +101,8 @@ namespace function {
 				RECT rect;
 				pDevice->GetCreationParameters(&cparams);
 				GetWindowRect(cparams.hFocusWindow, &rect);
-				if (ScreenCenterX == NULL) ScreenCenterX = (rect.right - rect.left) / 2.0f;
-				if (ScreenCenterY == NULL) ScreenCenterY = (rect.bottom - rect.top) / 2.0f;
+				if (ScreenCenterX == NULL || ScreenCenterX != (rect.right - rect.left) / 2.0f) ScreenCenterX = (rect.right - rect.left) / 2.0f;
+				if (ScreenCenterY == NULL || ScreenCenterY != (rect.bottom - rect.top) / 2.0f) ScreenCenterY = (rect.bottom - rect.top) / 2.0f;
 
 				for (size_t i = 0; i < ModelInfo.size(); i++)
 				{
