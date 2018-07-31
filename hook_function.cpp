@@ -169,7 +169,7 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 	function::aimbot::SearchTarget(pDevice);
 	function::aimbot::doAim();
 
-	if (GetAsyncKeyState(VK_INSERT) & 0x1) {
+	if (GetAsyncKeyState(VK_HOME) & 0x1) {
 		menu::isMENU = !menu::isMENU;
 	}
 
