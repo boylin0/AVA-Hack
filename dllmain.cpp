@@ -2,7 +2,6 @@
 #include "stdafx.h"
 
 #include "Memory.h"
-#include "d3dmenu.h"
 #include "HackFunction.h"
 #include "hook_function.h"
 
@@ -12,12 +11,6 @@
 
 using namespace function;
 
-class Memory Memory;
-class d3dMenu d3dmenu;
-
-bool func_changename,
-	 func_wallhack,
-	 func_QQMacro;
 
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved )
 {
@@ -49,28 +42,7 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 	{
 		Sleep(100);
 		if (isFocusOnAVA()) {
-
-			if ((GetAsyncKeyState(VK_HOME) & 0x1)) {
-				menu = !menu;
-				console::message("Menu:", 3, true, true, false);
-				console::message( (menu == 1 ? "On":"Off") , 3, false, false, true);
-			}
-			if ((GetAsyncKeyState(VK_F4) & 0x1) && menu) {
-				ToggleWallHack();
-				console::message("function_wallhack:", 3, true, true, false);
-				console::message( (func_wallhack == 1 ? "On" : "Off") , 3, false, false, true);
-			}
-			if ((GetAsyncKeyState(VK_F5) & 0x1) && menu) {
-				ToggleChangeName();
-				console::message("function_changename:", 3, true, true, false);
-				console::message( (func_changename == 1 ? "On" : "Off") , 3, false, false, true);
-			}
-			if ((GetAsyncKeyState(VK_F6) & 0x1) && menu) {
-				ToggleQQMacro();
-				console::message("function_QQMacro:", 3, true, true, false);
-				console::message( (func_QQMacro == 1 ? "On" : "Off") , 3, false, false, true);
-			}
-			
+			DoChangeName();
 			DoQQMacro();
 		}
 

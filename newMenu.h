@@ -1,0 +1,15 @@
+#pragma once
+#include "stdafx.h"
+
+namespace function {
+	namespace menu {
+		namespace item {
+			extern bool checkbox_wallhack;
+			extern bool checkbox_QQMacro;
+			extern bool checkbox_ChangeName;
+		}
+		extern bool isMENU;
+		void MenuRender();
+		void initMenu(IDirect3DDevice9 *pDevice);
+	}
+}

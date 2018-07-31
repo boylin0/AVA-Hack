@@ -2,6 +2,7 @@
 #include "hook_function.h"
 #include "lib/drawing/draw.h"
 #include "aimbot.h"
+#include "newMenu.h"
 
 //IMGUI Library
 #include "lib/imgui/imgui.h"
@@ -17,12 +18,16 @@ PDWORD Direct3D_VMTable = NULL;
 
 typedef HRESULT(WINAPI* CreateDevice_Prototype)          (LPDIRECT3D9, UINT, D3DDEVTYPE, HWND, DWORD, D3DPRESENT_PARAMETERS*, LPDIRECT3DDEVICE9*);
 typedef HRESULT(WINAPI* Reset_Prototype)                 (LPDIRECT3DDEVICE9, D3DPRESENT_PARAMETERS*);
+typedef HRESULT(WINAPI* Present_Prototype)               (IDirect3DDevice9 *, CONST RECT *, CONST RECT *, HWND, CONST RGNDATA *);
+typedef HRESULT(WINAPI * BeginScene_Prototype)           (LPDIRECT3DDEVICE9 *);
 typedef HRESULT(WINAPI* EndScene_Prototype)              (LPDIRECT3DDEVICE9);
 typedef HRESULT(WINAPI* DrawIndexedPrimitive_Prototype)  (LPDIRECT3DDEVICE9, D3DPRIMITIVETYPE, INT, UINT, UINT, UINT, UINT);
 typedef HRESULT(WINAPI* CreateQuery_Prototype)           (LPDIRECT3DDEVICE9, D3DQUERYTYPE, IDirect3DQuery9**);
 
 CreateDevice_Prototype         CreateDevice_Pointer = NULL;
 Reset_Prototype                Reset_Pointer = NULL;
+Present_Prototype              Present_Pointer = NULL;
+BeginScene_Prototype           BeginScene_Pointer = NULL;
 EndScene_Prototype             EndScene_Pointer = NULL;
 DrawIndexedPrimitive_Prototype DrawIndexedPrimitive_Pointer = NULL;
 CreateQuery_Prototype          CreateQuery_Pointer = NULL;
@@ -31,13 +36,21 @@ LPD3DXFONT g_font_default;
 class CDraw CDraw;
 
 
+bool testbool;
+
+
+
+HRESULT WINAPI Present_Detour(IDirect3DDevice9 *pDevice, CONST RECT *pSourceRect, CONST RECT *pDestRect, HWND hDestWindowOverride, CONST RGNDATA *pDirtyRegion)
+{
+	menu::initMenu(pDevice);
+	return Present_Pointer(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+}
+
+
 HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3DDEVTYPE DeviceType, HWND FocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* PresentationParameters, LPDIRECT3DDEVICE9* Returned_Device_Interface)
 {
-	HRESULT Returned_Result = CreateDevice_Pointer(Direct3D_Object, Adapter, DeviceType, FocusWindow, BehaviorFlags,
-		PresentationParameters, Returned_Device_Interface);
-
+	HRESULT Returned_Result = CreateDevice_Pointer(Direct3D_Object, Adapter, DeviceType, FocusWindow, BehaviorFlags, PresentationParameters, Returned_Device_Interface);
 	DWORD dwProtect;
-
 	if (VirtualProtect(&Direct3D_VMTable[16], sizeof(DWORD), PAGE_READWRITE, &dwProtect) != 0)
 	{
 		*(PDWORD)&Direct3D_VMTable[16] = *(PDWORD)&CreateDevice_Pointer;
@@ -49,11 +62,12 @@ HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3
 	else
 		return D3DERR_INVALIDCALL;
 
-	if (Returned_Result == D3D_OK)
-	{
+	if (Returned_Result == D3D_OK) {
 		Direct3D_VMTable = (PDWORD)*(PDWORD)*Returned_Device_Interface;
 
 		*(PDWORD)&Reset_Pointer = (DWORD)Direct3D_VMTable[16];
+		*(PDWORD)&Present_Pointer = (DWORD)Direct3D_VMTable[17];
+		*(PDWORD)&BeginScene_Pointer = (DWORD)Direct3D_VMTable[41];
 		*(PDWORD)&EndScene_Pointer = (DWORD)Direct3D_VMTable[42];
 		*(PDWORD)&DrawIndexedPrimitive_Pointer = (DWORD)Direct3D_VMTable[82];
 		*(PDWORD)&CreateQuery_Pointer = (DWORD)Direct3D_VMTable[118];
@@ -138,42 +152,26 @@ void wallhack_ghostChams(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT B
 }
 
 
-
+HRESULT WINAPI BeginScene_Detour(LPDIRECT3DDEVICE9 *pDevice)
+{
+	return BeginScene_Pointer(pDevice);
+}
 
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 {
+	menu::MenuRender();
+
 	if (g_font_default == NULL) {
 		//Create fonts
 		D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default);
 	}
 
-	if (d3dmenu.g_font == NULL) {
-		d3dmenu.g_font = g_font_default;
-		d3dmenu.additem("AVA Hack @2018", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[MENU]", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[F4] WallHack", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[F5] ChangeName", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[F6] QQMacro", D3DCOLOR_ARGB(255, 255, 000, 000));
-	}
-
-	if (menu)
-	{
-		/*
-		DrawString(1, 1, D3DCOLOR_ARGB(255, 000, 255, 000), "AVA HACK @2018");
-		DrawString(1, 40, D3DCOLOR_ARGB(255, 000, 255, 000), "[MENU]");
-		DWORD colorGreen = D3DCOLOR_ARGB(255, 000, 255, 000), colorRed = D3DCOLOR_ARGB(255, 255, 000, 000);
-		if (func_wallhack) DrawString(1, 60, colorGreen, "WallHack [On]"); else DrawString(1, 60, colorRed ,"WallHack [Off]");
-		if (func_changename) DrawString(1, 80, colorGreen, "ChangeName [On]"); else DrawString(1, 80, colorRed, "ChangeName [Off]");
-		*/
-
-		d3dmenu.drawMenu();
-	}
-
-
 	function::aimbot::SearchTarget(pDevice);
 	function::aimbot::doAim();
 
-	
+	if (GetAsyncKeyState(VK_INSERT) & 0x1) {
+		menu::isMENU = !menu::isMENU;
+	}
 
 	return EndScene_Pointer(pDevice);
 }
@@ -185,7 +183,7 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 	if (pDevice->GetStreamSource(0, &Stream_Data, &Offset, &Stride) == D3D_OK) Stream_Data->Release();
 
-	if (func_wallhack && Stride == 32 && StartIndex == 0)
+	if (menu::item::checkbox_wallhack && Stride == 32 && StartIndex == 0)
 	{
 		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		if (characterHEAD) {
@@ -196,13 +194,13 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 	if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 	{
 		function::aimbot::mouseSmooth += 0.1f;
-		cout << "mouseSmooth:" << function::aimbot::mouseSmooth << endl;
+		std::cout << "mouseSmooth:" << function::aimbot::mouseSmooth << endl;
 	}
 
 	if (GetAsyncKeyState(VK_NUMPAD8) & 1)
 	{
 		function::aimbot::mouseSmooth -= 0.1f;
-		cout << "mouseSmooth:" << function::aimbot::mouseSmooth << endl;
+		std::cout << "mouseSmooth:" << function::aimbot::mouseSmooth << endl;
 	}
 
 	return DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
@@ -218,7 +216,10 @@ HRESULT WINAPI CreateQuery_Detour(LPDIRECT3DDEVICE9 pDevice, D3DQUERYTYPE Type, 
 
 void hookD3Dfunction() {
 	*(PDWORD)&Direct3D_VMTable[16] = (DWORD)Reset_Detour;
+	*(PDWORD)&Direct3D_VMTable[17] = (DWORD)Present_Detour;
+	*(PDWORD)&Direct3D_VMTable[41] = (DWORD)BeginScene_Detour;
 	*(PDWORD)&Direct3D_VMTable[42] = (DWORD)EndScene_Detour;
 	*(PDWORD)&Direct3D_VMTable[82] = (DWORD)DrawIndexedPrimitive_Detour;
 	*(PDWORD)&Direct3D_VMTable[118] = (DWORD)CreateQuery_Detour;
+	
 }
