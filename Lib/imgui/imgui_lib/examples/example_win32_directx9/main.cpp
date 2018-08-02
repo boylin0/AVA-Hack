@@ -1,4 +1,4 @@
-// ImGui - standalone example application for DirectX 9
+﻿// ImGui - standalone example application for DirectX 9
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 
 #include "imgui.h"
@@ -102,6 +102,8 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
+	io.Fonts->AddFontFromFileTTF("font.TTF", 14.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -133,6 +135,21 @@ int main(int, char**)
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
+
+		//test
+		{
+			ImGui::Begin("TEST");
+			ImGui::Text(u8"fsdfsdad我是中文dfd哈哈a");
+			ImGui::Separator();
+			ImGui::Text("Kanjis: \xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e (nihongo)");
+			static char buf[32] = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
+			//static char buf[32] = u8"NIHONGO"; // <- this is how you would write it with C++11, using real kanjis
+			ImGui::InputText("UTF-8 input", buf, IM_ARRAYSIZE(buf));
+			static float f = 0.0f;
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f,"%.1f",0.1F);
+			ImGui::Separator();
+			ImGui::End();
+		}
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
