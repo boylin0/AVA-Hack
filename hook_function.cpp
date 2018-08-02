@@ -116,6 +116,8 @@ HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pP
 	g_font_default->OnLostDevice();
 	g_font_default->OnResetDevice();
 
+	function::menu::isMENU = false;
+
 	//free resources
 	ImGui_ImplDX9_InvalidateDeviceObjects();
 	ImGui_ImplDX9_CreateDeviceObjects();
@@ -160,14 +162,19 @@ HRESULT WINAPI BeginScene_Detour(LPDIRECT3DDEVICE9 *pDevice)
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 {
 	menu::MenuRender();
-
+	if (menu::item::checkbox_QQMacro) {
+		
+	}
 	if (g_font_default == NULL) {
 		//Create fonts
 		D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default);
 	}
 
-	function::aimbot::SearchTarget(pDevice);
-	function::aimbot::doAim();
+	if (menu::item::checkbox_aimbot) {
+		//find the best target then move crosshair to the target
+		function::aimbot::SearchTarget(pDevice);
+		function::aimbot::doAim();
+	}
 
 	if (GetAsyncKeyState(VK_HOME) & 0x1) {
 		menu::isMENU = !menu::isMENU;
@@ -186,7 +193,9 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 	if (menu::item::checkbox_wallhack && Stride == 32 && StartIndex == 0)
 	{
 		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
-		if (characterHEAD) {
+
+		//if model is head add to target list
+		if (characterHEAD && menu::item::checkbox_aimbot) {
 			function::aimbot::AddModel(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		}
 	}

@@ -98,6 +98,7 @@
     <ClInclude Include="Lib\imgui\imconfig.h" />
     <ClInclude Include="Lib\imgui\imgui.h" />
     <ClInclude Include="Lib\imgui\imgui_impl_dx9.h" />
+    <ClInclude Include="lib\imgui\imgui_impl_win32.h" />
     <ClInclude Include="Lib\imgui\imgui_internal.h" />
     <ClInclude Include="Lib\imgui\stb_rect_pack.h" />
     <ClInclude Include="Lib\imgui\stb_textedit.h" />
@@ -130,6 +131,7 @@
     <ClCompile Include="Lib\imgui\imgui_demo.cpp" />
     <ClCompile Include="Lib\imgui\imgui_draw.cpp" />
     <ClCompile Include="Lib\imgui\imgui_impl_dx9.cpp" />
+    <ClCompile Include="lib\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="logConsole.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="newMenu.cpp" />

@@ -35,9 +35,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="src\function\d3d">
-      <UniqueIdentifier>{de7877d2-38e5-450e-b040-046a31a0260b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\lib\memory">
       <UniqueIdentifier>{004b9893-65b6-43d4-badd-cabe67771069}</UniqueIdentifier>
     </Filter>
@@ -55,6 +52,9 @@
     </Filter>
     <Filter Include="src\function\newMenu">
       <UniqueIdentifier>{e0d2d700-a0db-40e8-bc6d-460bd858b266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\function\d3d_hook">
+      <UniqueIdentifier>{de7877d2-38e5-450e-b040-046a31a0260b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -98,7 +98,7 @@
       <Filter>src\lib\xinput_wrapper</Filter>
     </ClInclude>
     <ClInclude Include="hook_function.h">
-      <Filter>src\function\d3d</Filter>
+      <Filter>src\function\d3d_hook</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>src\source\Header Files</Filter>
@@ -127,6 +127,9 @@
     <ClInclude Include="newMenu.h">
       <Filter>src\function\newMenu</Filter>
     </ClInclude>
+    <ClInclude Include="lib\imgui\imgui_impl_win32.h">
+      <Filter>src\lib\imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lib\drawing\draw.cpp">
@@ -152,7 +155,7 @@
       <Filter>src\lib\xinput_wrapper</Filter>
     </ClCompile>
     <ClCompile Include="hook_function.cpp">
-      <Filter>src\function\d3d</Filter>
+      <Filter>src\function\d3d_hook</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>src\source\Source Files</Filter>
@@ -174,6 +177,9 @@
     </ClCompile>
     <ClCompile Include="newMenu.cpp">
       <Filter>src\function\newMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\imgui\imgui_impl_win32.cpp">
+      <Filter>src\lib\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

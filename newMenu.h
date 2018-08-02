@@ -5,8 +5,11 @@ namespace function {
 	namespace menu {
 		namespace item {
 			extern bool checkbox_wallhack;
+			extern bool checkbox_aimbot;
 			extern bool checkbox_QQMacro;
 			extern bool checkbox_ChangeName;
+			extern float slider_aimheight;
+			//extern char input_ChangeName[];
 		}
 		extern bool isMENU;
 		void MenuRender();
