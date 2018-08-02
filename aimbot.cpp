@@ -2,6 +2,7 @@
 #include "aimbot.h"
 #include "lib/drawing/draw.h"
 #include <vector>
+#include "newMenu.h"
 
 namespace function {
 	namespace aimbot {
@@ -25,7 +26,7 @@ namespace function {
 		float mouseSmooth = 4, minCrosshairDistance = 500;
 
 		D3DVIEWPORT9 g_ViewPort;
-		int aimheight = 0;
+		
 
 		ModelInfo_t* targetModel = new ModelInfo_t;
 		ModelInfo_t* focusModel = new ModelInfo_t;
@@ -61,7 +62,7 @@ namespace function {
 			pDevice->GetViewport(&g_ViewPort);
 
 			D3DXMATRIX pProjection, pView, pWorld;
-			D3DXVECTOR3 vOut(0, 0, 0), vIn(0, (float)aimheight, 1);
+			D3DXVECTOR3 vOut(0, 0, 0), vIn(0, 0, 1);
 
 			pDevice->GetVertexShaderConstantF(0, pProjection, 4);
 			pDevice->GetVertexShaderConstantF(230, pView, 4);
@@ -75,7 +76,7 @@ namespace function {
 
 			float RealDistance = getDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100;
 
-			pModel->Position2D.y = vOut.y;
+			pModel->Position2D.y = vOut.y + (float)menu::item::slider_aimheight;
 			pModel->Position2D.x = vOut.x;
 			pModel->Position2D.z = vOut.z;
 			pModel->Distance = RealDistance;
@@ -148,7 +149,7 @@ namespace function {
 					CDraw.Circle(targetModel->Position2D.x, targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
 
 					mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX +  3 ) / mouseSmooth;
-					mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 14 ) / mouseSmooth;
+					mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 13 ) / mouseSmooth;
 
 					if (mouseOffset_X >= 50)
 						mouseOffset_X = int((targetModel->Position2D.x - ScreenCenterX +  3 ) / ((mouseSmooth * 0.55f) < 1 ? 1 : (mouseSmooth * 0.55f)) + 0.5);
