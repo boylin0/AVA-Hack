@@ -15,3 +15,4 @@ extern DWORD baseAddress ;
 bool isFocusOnAVA();
 void DoQQMacro();
 void DoChangeName();
+void DoChangeRank();
