@@ -91,7 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aimbot.h" />
-    <ClInclude Include="d3dMenu.h" />
     <ClInclude Include="HackFunction.h" />
     <ClInclude Include="hook_function.h" />
     <ClInclude Include="Lib\drawing\colors.h" />
@@ -99,12 +98,14 @@
     <ClInclude Include="Lib\imgui\imconfig.h" />
     <ClInclude Include="Lib\imgui\imgui.h" />
     <ClInclude Include="Lib\imgui\imgui_impl_dx9.h" />
+    <ClInclude Include="lib\imgui\imgui_impl_win32.h" />
     <ClInclude Include="Lib\imgui\imgui_internal.h" />
     <ClInclude Include="Lib\imgui\stb_rect_pack.h" />
     <ClInclude Include="Lib\imgui\stb_textedit.h" />
     <ClInclude Include="Lib\imgui\stb_truetype.h" />
     <ClInclude Include="logConsole.h" />
     <ClInclude Include="Memory.h" />
+    <ClInclude Include="newMenu.h" />
     <ClInclude Include="QQMacro.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -115,7 +116,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="aimbot.cpp" />
-    <ClCompile Include="d3dMenu.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -131,8 +131,10 @@
     <ClCompile Include="Lib\imgui\imgui_demo.cpp" />
     <ClCompile Include="Lib\imgui\imgui_draw.cpp" />
     <ClCompile Include="Lib\imgui\imgui_impl_dx9.cpp" />
+    <ClCompile Include="lib\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="logConsole.cpp" />
     <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="newMenu.cpp" />
     <ClCompile Include="QQMacro.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

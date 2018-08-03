@@ -35,12 +35,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="src\function\d3d">
-      <UniqueIdentifier>{de7877d2-38e5-450e-b040-046a31a0260b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\function\menu">
-      <UniqueIdentifier>{4e1c4a20-1d41-43f8-b222-10398d094c86}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\lib\memory">
       <UniqueIdentifier>{004b9893-65b6-43d4-badd-cabe67771069}</UniqueIdentifier>
     </Filter>
@@ -55,6 +49,12 @@
     </Filter>
     <Filter Include="src\function\utils">
       <UniqueIdentifier>{d5c9c05a-0a9d-424c-b3b4-2fdaed3fcab6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\function\newMenu">
+      <UniqueIdentifier>{e0d2d700-a0db-40e8-bc6d-460bd858b266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\function\d3d_hook">
+      <UniqueIdentifier>{de7877d2-38e5-450e-b040-046a31a0260b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -98,7 +98,7 @@
       <Filter>src\lib\xinput_wrapper</Filter>
     </ClInclude>
     <ClInclude Include="hook_function.h">
-      <Filter>src\function\d3d</Filter>
+      <Filter>src\function\d3d_hook</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>src\source\Header Files</Filter>
@@ -112,9 +112,6 @@
     <ClInclude Include="resource.h">
       <Filter>src\source\Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="d3dMenu.h">
-      <Filter>src\function\menu</Filter>
-    </ClInclude>
     <ClInclude Include="HackFunction.h">
       <Filter>src\function\hack</Filter>
     </ClInclude>
@@ -126,6 +123,12 @@
     </ClInclude>
     <ClInclude Include="utils.h">
       <Filter>src\function\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="newMenu.h">
+      <Filter>src\function\newMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\imgui\imgui_impl_win32.h">
+      <Filter>src\lib\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -152,16 +155,13 @@
       <Filter>src\lib\xinput_wrapper</Filter>
     </ClCompile>
     <ClCompile Include="hook_function.cpp">
-      <Filter>src\function\d3d</Filter>
+      <Filter>src\function\d3d_hook</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>src\source\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Memory.cpp">
       <Filter>src\lib\memory</Filter>
-    </ClCompile>
-    <ClCompile Include="d3dMenu.cpp">
-      <Filter>src\function\menu</Filter>
     </ClCompile>
     <ClCompile Include="HackFunction.cpp">
       <Filter>src\function\hack</Filter>
@@ -174,6 +174,12 @@
     </ClCompile>
     <ClCompile Include="utils.cpp">
       <Filter>src\function\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="newMenu.cpp">
+      <Filter>src\function\newMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\imgui\imgui_impl_win32.cpp">
+      <Filter>src\lib\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -271,3 +271,66 @@ void ImGui_ImplDX9_NewFrame()
     if (!g_FontTexture)
         ImGui_ImplDX9_CreateDeviceObjects();
 }
+
+IMGUI_IMPL_API LRESULT ImGui_ImplDX9_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	if (ImGui::GetCurrentContext() == NULL) return 0;
+	ImGuiIO& io = ImGui::GetIO();
+	
+	switch (msg)
+	{
+	case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
+	case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
+	case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
+	{
+		int button = 0;
+		if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONDBLCLK) button = 0;
+		if (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK) button = 1;
+		if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONDBLCLK) button = 2;
+		if (!ImGui::IsAnyMouseDown() && ::GetCapture() == NULL)
+			::SetCapture(hwnd);
+		io.MouseDown[button] = true;
+		return 0;
+	}
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONUP:
+	{
+		int button = 0;
+		if (msg == WM_LBUTTONUP) button = 0;
+		if (msg == WM_RBUTTONUP) button = 1;
+		if (msg == WM_MBUTTONUP) button = 2;
+		io.MouseDown[button] = false;
+		if (!ImGui::IsAnyMouseDown() && ::GetCapture() == hwnd)
+			::ReleaseCapture();
+		return 0;
+	}
+	case WM_MOUSEWHEEL:
+		io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		return true;
+	case WM_MOUSEHWHEEL:
+		io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		return true;
+	case WM_MOUSEMOVE:
+		io.MousePos.x = (signed short)(lParam);
+		io.MousePos.y = (signed short)(lParam >> 16);
+		return true;
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+		if (wParam < 256)
+			io.KeysDown[wParam] = 1;
+		return true;
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		if (wParam < 256)
+			io.KeysDown[wParam] = 0;
+		return true;
+	case WM_CHAR:
+	case WM_UNICHAR:
+		// You can also use ToAscii()+GetKeyboardState() to retrieve characters.
+		if (wParam > 0 && wParam < 0x10000)
+			io.AddInputCharacter((unsigned short)wParam);
+		return true;
+	}
+	return 0;
+}
