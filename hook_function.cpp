@@ -3,6 +3,7 @@
 #include "lib/drawing/draw.h"
 #include "aimbot.h"
 #include "newMenu.h"
+#include "utils.h"
 
 //IMGUI Library
 #include "lib/imgui/imgui.h"
@@ -176,7 +177,7 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 		function::aimbot::doAim();
 	}
 
-	if (GetAsyncKeyState(VK_HOME) & 0x1) {
+	if ((GetAsyncKeyState(VK_HOME) & 0x1) && utils::isFocusOnAVA()) {
 		menu::isMENU = !menu::isMENU;
 	}
 
