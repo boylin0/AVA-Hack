@@ -177,7 +177,7 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 		function::aimbot::doAim();
 	}
 
-	if ((GetAsyncKeyState(VK_HOME) & 0x1) && utils::isFocusOnAVA()) {
+	if ( ((GetAsyncKeyState(VK_HOME) & 0x1) && utils::isFocusOnAVA()) || (menu::isMENU && (GetAsyncKeyState(VK_ESCAPE) & 0x1) && utils::isFocusOnAVA()) ) {
 		menu::isMENU = !menu::isMENU;
 	}
 
