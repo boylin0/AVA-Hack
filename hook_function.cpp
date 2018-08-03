@@ -164,22 +164,25 @@ HRESULT WINAPI BeginScene_Detour(LPDIRECT3DDEVICE9 *pDevice)
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 {
 	menu::MenuRender();
-	if (menu::item::checkbox_QQMacro) {
-		
-	}
+
+	//create new font for drawing text
 	if (g_font_default == NULL) {
 		//Create fonts
 		D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default);
 	}
 
+	//do aimbot
 	if (menu::item::checkbox_aimbot) {
 		//find the best target then move crosshair to the target
 		function::aimbot::SearchTarget(pDevice);
 		function::aimbot::doAim();
 	}
 
-	if ( ((GetAsyncKeyState(VK_HOME) & 0x1) && utils::isFocusOnAVA()) || (menu::isMENU && (GetAsyncKeyState(VK_ESCAPE) & 0x1) && utils::isFocusOnAVA()) ) {
+	//toggle menu
+	if ( (GetAsyncKeyState(VK_HOME) & 0x1) && utils::isFocusOnAVA() ) {
 		menu::isMENU = !menu::isMENU;
+	}else if( menu::isMENU && utils::isFocusOnAVA() && (GetAsyncKeyState(VK_ESCAPE) & 0x1) ){
+		menu::isMENU = false;
 	}
 
 	return EndScene_Pointer(pDevice);

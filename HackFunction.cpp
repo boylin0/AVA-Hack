@@ -2,6 +2,7 @@
 #include "HackFunction.h"
 #include "QQMacro.h"
 #include "newMenu.h"
+#include "utils.h"
 
 using namespace function;
 
@@ -50,12 +51,8 @@ void DoChangeName() {
 }
 
 
-bool isFocusOnAVA() {
-	return (GetForegroundWindow() == FindWindowA("LaunchUnrealUWindowsClient", "Alliance of Valiant Arms"));
-}
-
 void DoQQMacro() {
-	if (menu::item::checkbox_QQMacro && (GetAsyncKeyState(VK_LBUTTON) & 0x1)) {
+	if (menu::item::checkbox_QQMacro && (GetAsyncKeyState(VK_LBUTTON) & 0x1) && utils::isFocusOnAVA) {
 		function::QQMacro::doQQMacro();
 	}
 }

@@ -5,6 +5,7 @@
 #include "HackFunction.h"
 #include "hook_function.h"
 #include "newMenu.h"
+#include "utils.h"
 //IMGUI Library
 #include "lib/imgui/imgui.h"
 #include "lib/imgui/imgui_impl_dx9.h"
@@ -32,6 +33,7 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 {
 	UNREFERENCED_PARAMETER(Param);
 
+	//fetch process information for memory hacking
 	hProcess = GetCurrentProcess();
 	baseAddress = Memory.getModuleBase(L"AVA.exe", GetCurrentProcessId());
 
@@ -41,16 +43,18 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 	while (1)
 	{
 		Sleep(100);
-		if (isFocusOnAVA()) {
-			if (GetAsyncKeyState(VK_F4) & 0x1) {
-				function::menu::item::checkbox_QQMacro = !function::menu::item::checkbox_QQMacro;
-			}
-			DoQQMacro();
-		}
 
+		//toggle QQMacro function by hotkey
+		if ( (GetAsyncKeyState(VK_F4) & 0x1) && utils::isFocusOnAVA() ) {
+			function::menu::item::checkbox_QQMacro = !function::menu::item::checkbox_QQMacro;
+		}
+			
+		//hack function
+		DoQQMacro();
 		DoChangeRank();
 		DoChangeName();
 
+		//hook d3d
 		hookD3Dfunction();
 	}
 
