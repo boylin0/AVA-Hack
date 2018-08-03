@@ -45,11 +45,11 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 			if (GetAsyncKeyState(VK_F4) & 0x1) {
 				function::menu::item::checkbox_QQMacro = !function::menu::item::checkbox_QQMacro;
 			}
-			DoChangeName();
 			DoQQMacro();
 		}
 
-
+		DoChangeRank();
+		DoChangeName();
 
 		hookD3Dfunction();
 	}
