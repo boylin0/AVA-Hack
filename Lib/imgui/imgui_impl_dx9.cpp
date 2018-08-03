@@ -326,6 +326,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplDX9_WndProcHandler(HWND hwnd, UINT msg, WPARAM 
 			io.KeysDown[wParam] = 0;
 		return true;
 	case WM_CHAR:
+	case WM_UNICHAR:
 		// You can also use ToAscii()+GetKeyboardState() to retrieve characters.
 		if (wParam > 0 && wParam < 0x10000)
 			io.AddInputCharacter((unsigned short)wParam);

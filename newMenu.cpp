@@ -10,9 +10,10 @@ WNDPROC oriWndProc = NULL;
 
 
 extern LRESULT ImGui_ImplDX9_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+//extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK hWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (function::menu::isMENU && ImGui_ImplDX9_WndProcHandler(hwnd, uMsg, wParam, lParam)) return 1;
+	if (function::menu::isMENU && ImGui_ImplDX9_WndProcHandler(hwnd, uMsg, wParam, lParam)) return true;
 	return CallWindowProc(oriWndProc, hwnd, uMsg, wParam, lParam);
 }
 
@@ -23,6 +24,8 @@ namespace function {
 			bool checkbox_aimbot = false;
 			bool checkbox_QQMacro = false;
 			bool checkbox_ChangeName = false;
+			bool checkbox_ChangeRank = false;
+			int slider_Rank = 65;
 			float slider_aimheight = 0;
 			//char input_ChangeName[32] = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
 		}
@@ -44,7 +47,9 @@ namespace function {
 				io.Fonts->AddFontFromFileTTF("..\\avaGame\\Fonts\\TPE\\AVAFont.TTF", 14.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
 				//io.Fonts->AddFontDefault();
 				//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+				ImGui_ImplWin32_Init(d3dcp.hFocusWindow);
 				ImGui_ImplDX9_Init(pDevice);
+				io.ImeWindowHandle = d3dcp.hFocusWindow;
 				ImGui::StyleColorsDark();
 				isInitMENU = true;
 			}
@@ -71,12 +76,14 @@ namespace function {
 				}
 				ImGui::Separator();
 				ImGui::Checkbox(u8"自動切槍[F4]", &item::checkbox_QQMacro);
+				ImGui::Separator();
 				ImGui::Checkbox(u8"修改名稱", &item::checkbox_ChangeName);
+				static char buf[32] = "\x41\x64\x6d\x69\x6e\x69\x73\x74\x72\x61\x74\x6f\x72";
+				ImGui::InputText("", buf, IM_ARRAYSIZE(buf));
 				ImGui::Separator();
-				//static char buf[32] = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
-				//ImGui::InputText("UTF-8 input", buf, IM_ARRAYSIZE(buf));
+				ImGui::Checkbox(u8"修改等級", &item::checkbox_ChangeRank);
+				ImGui::SliderInt(u8"等級", &item::slider_Rank, 0.0f, 65.0f, "%.0f");
 				ImGui::Separator();
-				//ImGui::InputText("UTF-8 input", item::input_ChangeName, IM_ARRAYSIZE(item::input_ChangeName));
 				ImGui::End();
 			}
 
