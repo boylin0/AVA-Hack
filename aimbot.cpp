@@ -3,6 +3,7 @@
 #include "lib/drawing/draw.h"
 #include <vector>
 #include "newMenu.h"
+#include "utils.h"
 
 namespace function {
 	namespace aimbot {
@@ -143,7 +144,7 @@ namespace function {
 		}
 
 		void doAim() {
-			if (GetAsyncKeyState(0x4)) {
+			if (GetAsyncKeyState(0x4) && utils::isFocusOnAVA()) {
 				if (isFoundTarget) {
 					//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
 					CDraw.Circle(targetModel->Position2D.x, targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
