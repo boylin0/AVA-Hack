@@ -8,7 +8,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #include <tchar.h>
-
+#include <iostream>
 // Data
 static LPDIRECT3DDEVICE9        g_pd3dDevice = NULL;
 static D3DPRESENT_PARAMETERS    g_d3dpp;
@@ -144,9 +144,15 @@ int main(int, char**)
 			ImGui::Text("Kanjis: \xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e (nihongo)");
 			static char buf[32] = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
 			//static char buf[32] = u8"NIHONGO"; // <- this is how you would write it with C++11, using real kanjis
-			ImGui::InputText("UTF-8 input", buf, IM_ARRAYSIZE(buf));
+			ImGui::InputText("", buf, IM_ARRAYSIZE(buf));
 			static float f = 0.0f;
 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f,"%.1f",0.1F);
+			if (ImGui::Button(u8"測試")) {
+				for(int ij=0;ij < (sizeof(buf) / sizeof(char));ij++){
+					printf("%02X\n", (unsigned char)buf[ij]);
+				}
+			}
+
 			ImGui::Separator();
 			ImGui::End();
 		}
