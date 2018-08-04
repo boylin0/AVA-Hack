@@ -25,6 +25,7 @@ namespace function {
 			bool checkbox_QQMacro = false;
 			bool checkbox_ChangeName = false;
 			bool checkbox_ChangeRank = false;
+			bool checkbox_debugMode = false;
 			int slider_Rank = 65;
 			float slider_aimheight = 0;
 			//char input_ChangeName[32] = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
@@ -78,11 +79,13 @@ namespace function {
 				ImGui::Checkbox(u8"自動切槍[F4]", &item::checkbox_QQMacro);
 				ImGui::Separator();
 				ImGui::Checkbox(u8"修改名稱", &item::checkbox_ChangeName);
-				static char buf[32] = "\x41\x64\x6d\x69\x6e\x69\x73\x74\x72\x61\x74\x6f\x72";
+				static char buf[11] = "\x41\x56\x41\xe5\xa4\x96\xe6\x8e\x9b";
 				ImGui::InputText("", buf, IM_ARRAYSIZE(buf));
 				ImGui::Separator();
 				ImGui::Checkbox(u8"修改等級", &item::checkbox_ChangeRank);
 				ImGui::SliderInt(u8"等級", &item::slider_Rank, 0.0f, 65.0f, "%.0f");
+				ImGui::Separator();
+				ImGui::Checkbox(u8"DEBUG", &item::checkbox_debugMode);
 				ImGui::Separator();
 				ImGui::End();
 			}

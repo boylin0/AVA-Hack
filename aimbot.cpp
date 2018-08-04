@@ -108,10 +108,17 @@ namespace function {
 
 				for (size_t i = 0; i < ModelInfo.size(); i++)
 				{
-
+					
 					PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x - 10, (int)ModelInfo[i]->Position2D.y, D3DCOLOR_XRGB(255, 0, 0),
 						"%.1f m",
 						ModelInfo[i]->Distance);
+
+					if ( (GetAsyncKeyState(VK_F8)) && menu::item::checkbox_debugMode ) {
+						PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x - 10, (int)ModelInfo[i]->Position2D.y + 20, D3DCOLOR_XRGB(255, 0, 0),
+							"PrimitiveCount: %d\nNumVertices: %d",
+							ModelInfo[i]->PrimitiveCount,
+							ModelInfo[i]->NumVertices);
+					}
 
 					if (isFocusTargetSet) {
 						if (ModelInfo[i]->BaseIndex == focusModel->BaseIndex

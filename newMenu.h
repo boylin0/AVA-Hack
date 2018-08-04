@@ -9,6 +9,7 @@ namespace function {
 			extern bool  checkbox_QQMacro;
 			extern bool  checkbox_ChangeName;
 			extern bool  checkbox_ChangeRank;
+			extern bool  checkbox_debugMode;
 			extern int   slider_Rank;
 			extern float slider_aimheight;
 			//extern char input_ChangeName[];
