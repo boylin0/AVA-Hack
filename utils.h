@@ -3,6 +3,9 @@
 
 namespace function {
 	namespace utils {
+		extern HANDLE hProcess;
+		extern DWORD baseAddress;
+		extern HWND hWnd;
 		bool isFocusOnAVA();
 	}
 }

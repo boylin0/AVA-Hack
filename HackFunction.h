@@ -6,11 +6,9 @@
 
  
 extern class d3dMenu d3dmenu;
-extern class Memory Memory;
+extern class Memory memory;
 extern class logConsole console;
 
-extern HANDLE hProcess ;
-extern DWORD baseAddress ;
 
 void DoQQMacro();
 void DoChangeName();

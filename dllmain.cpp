@@ -34,8 +34,9 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 	UNREFERENCED_PARAMETER(Param);
 
 	//fetch process information for memory hacking
-	hProcess = GetCurrentProcess();
-	baseAddress = Memory.getModuleBase(L"AVA.exe", GetCurrentProcessId());
+	utils::hProcess = GetCurrentProcess();
+	utils::baseAddress = memory.getModuleBase(L"AVA.exe", GetCurrentProcessId());
+	utils::hWnd = FindWindowA("LaunchUnrealUWindowsClient", "Alliance of Valiant Arms");
 
 	//start logConsole
 	console::message("Game Window Started", 0);
