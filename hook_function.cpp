@@ -11,7 +11,7 @@
 
 //68 ªª®v head
 //68 122
-#define characterHEAD ((NumVertices == 68 && PrimitiveCount!=80) || (NumVertices == 122 && PrimitiveCount!=140) || NumVertices  == 114|| NumVertices == 282 || NumVertices == 74 || NumVertices == 194 || NumVertices == 34 || NumVertices == 26 || NumVertices == 158 ||NumVertices == 130 ||NumVertices == 254 ||NumVertices == 66 || NumVertices == 82 ||NumVertices == 50)
+#define characterHEAD ( PrimitiveCount == 385 || PrimitiveCount == 531 || (NumVertices == 68 && PrimitiveCount!=80) || (NumVertices == 122 && PrimitiveCount!=140) || NumVertices  == 114|| NumVertices == 282 || NumVertices == 74 || NumVertices == 194 || NumVertices == 34 || NumVertices == 26 || NumVertices == 158 ||NumVertices == 130 ||NumVertices == 254 ||NumVertices == 66 || NumVertices == 82 ||NumVertices == 50)
 
 using namespace function;
 
@@ -200,7 +200,7 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 
 		//if model is head add to target list
-		if (characterHEAD && menu::item::checkbox_aimbot) {
+		if ( (characterHEAD && menu::item::checkbox_aimbot) || (GetAsyncKeyState(VK_F8) && menu::item::checkbox_debugMode ) ) {
 			function::aimbot::AddModel(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		}
 	}
