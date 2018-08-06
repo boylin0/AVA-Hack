@@ -131,7 +131,7 @@ void DoChangeName() {
 
 
 void DoQQMacro() {
-	if (menu::item::checkbox_QQMacro && (GetAsyncKeyState(VK_LBUTTON) & 0x1) && utils::isFocusOnAVA) {
+	if (menu::item::checkbox_QQMacro && (GetAsyncKeyState(VK_LBUTTON) & 0x1) && utils::isFocusOnAVA && !menu::isMENU) {
 		function::QQMacro::doQQMacro();
 	}
 }
