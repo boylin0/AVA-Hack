@@ -9,9 +9,40 @@
 #include "lib/imgui/imgui.h"
 #include "lib/imgui/imgui_impl_dx9.h"
 
-//68 ªª®v head
-//68 122
-#define characterHEAD ( PrimitiveCount == 385 || PrimitiveCount == 531 || (NumVertices == 68 && PrimitiveCount!=80) || (NumVertices == 122 && PrimitiveCount!=140) || NumVertices  == 114|| NumVertices == 282 || NumVertices == 74 || NumVertices == 194 || NumVertices == 34 || NumVertices == 26 || NumVertices == 158 ||NumVertices == 130 ||NumVertices == 254 ||NumVertices == 66 || NumVertices == 82 ||NumVertices == 50)
+//head
+//60 38
+//120 110
+//60 58
+
+//ÀY²¯
+//16 3564
+
+//head no added
+//624 1570 
+//3854 3811
+#define characterHEAD ( \
+   (NumVertices == 1771 && PrimitiveCount == 1664) \
+|| (NumVertices == 110 && PrimitiveCount == 120) \
+|| (NumVertices == 1570 && PrimitiveCount==624) \
+|| (NumVertices == 58 && PrimitiveCount==60) \
+|| (NumVertices == 120 && PrimitiveCount==110)  \
+|| (NumVertices == 38 && PrimitiveCount==60)  \
+|| PrimitiveCount == 385 \
+|| PrimitiveCount == 531 \
+|| (NumVertices == 68 && PrimitiveCount!=80) \
+|| (NumVertices == 122 && PrimitiveCount!=140) \
+|| NumVertices  == 114 \
+|| NumVertices == 282 \
+|| NumVertices == 74 \
+|| NumVertices == 194 \
+|| NumVertices == 34 \
+|| NumVertices == 26 \
+|| NumVertices == 158 \
+|| NumVertices == 130 \
+|| NumVertices == 254 \
+|| NumVertices == 66 \
+|| NumVertices == 82 \
+|| NumVertices == 50)
 
 using namespace function;
 
@@ -35,11 +66,6 @@ CreateQuery_Prototype          CreateQuery_Pointer = NULL;
 
 LPD3DXFONT g_font_default;
 class CDraw CDraw;
-
-
-bool testbool;
-
-
 
 HRESULT WINAPI Present_Detour(IDirect3DDevice9 *pDevice, CONST RECT *pSourceRect, CONST RECT *pDestRect, HWND hDestWindowOverride, CONST RGNDATA *pDirtyRegion)
 {
@@ -200,21 +226,9 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 
 		//if model is head add to target list
-		if ( (characterHEAD && menu::item::checkbox_aimbot) || (GetAsyncKeyState(VK_F8) && menu::item::checkbox_debugMode ) ) {
+		if ((GetAsyncKeyState(0x45) && menu::item::checkbox_debugMode) || (characterHEAD && menu::item::checkbox_aimbot) ) {
 			function::aimbot::AddModel(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		}
-	}
-
-	if (GetAsyncKeyState(VK_NUMPAD2) & 1)
-	{
-		function::aimbot::mouseSmooth += 0.1f;
-		std::cout << "mouseSmooth:" << function::aimbot::mouseSmooth << endl;
-	}
-
-	if (GetAsyncKeyState(VK_NUMPAD8) & 1)
-	{
-		function::aimbot::mouseSmooth -= 0.1f;
-		std::cout << "mouseSmooth:" << function::aimbot::mouseSmooth << endl;
 	}
 
 	return DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);

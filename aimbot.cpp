@@ -24,7 +24,7 @@ namespace function {
 
 		bool isFoundTarget = false, isFocusTargetSet = false;
 		int mouseOffset_X = 0, mouseOffset_Y = 0, ScreenCenterX = NULL, ScreenCenterY = NULL;
-		float mouseSmooth = 4, minCrosshairDistance = 500;
+		float minCrosshairDistance = 500;
 
 		D3DVIEWPORT9 g_ViewPort;
 		
@@ -94,7 +94,7 @@ namespace function {
 		void SearchTarget(LPDIRECT3DDEVICE9 pDevice) {
 
 			isFoundTarget = false;
-			minCrosshairDistance = 500;
+			minCrosshairDistance = 600;
 
 
 			if (ModelInfo.size() != NULL)
@@ -113,7 +113,7 @@ namespace function {
 						"%.1f m",
 						ModelInfo[i]->Distance);
 
-					if ( (GetAsyncKeyState(VK_F8)) && menu::item::checkbox_debugMode ) {
+					if ( (GetAsyncKeyState(0x45)) && menu::item::checkbox_debugMode ) {
 						PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x - 10, (int)ModelInfo[i]->Position2D.y + 20, D3DCOLOR_XRGB(255, 0, 0),
 							"PrimitiveCount: %d\nNumVertices: %d",
 							ModelInfo[i]->PrimitiveCount,
@@ -156,16 +156,16 @@ namespace function {
 					//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
 					CDraw.Circle(targetModel->Position2D.x, targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
 
-					mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX +  3 ) / mouseSmooth;
-					mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 13 ) / mouseSmooth;
+					mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX +  3 ) / menu::item::slider_aimspeed;
+					mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 14 ) / menu::item::slider_aimspeed;
 
 					if (mouseOffset_X >= 50)
-						mouseOffset_X = int((targetModel->Position2D.x - ScreenCenterX +  3 ) / ((mouseSmooth * 0.55f) < 1 ? 1 : (mouseSmooth * 0.55f)) + 0.5);
+						mouseOffset_X = int((targetModel->Position2D.x - ScreenCenterX +  3 ) / ((menu::item::slider_aimspeed * 0.55f) < 1 ? 1 : (menu::item::slider_aimspeed * 0.55f)) + 0.5);
 					//if (mouseOffset_X >= 3 && mouseOffset_X <= 50)
 					//mouseOffset_X = int((targetModel->Position2D.x - ScreenCenterX + 3) / ((mouseSmooth * 0.7f) < 1 ? 1 : (mouseSmooth * 0.7f)) + 0.5);
 
 					if (mouseOffset_Y >= 50)
-						mouseOffset_Y = int((targetModel->Position2D.y - ScreenCenterY + 14 ) / ((mouseSmooth * 0.55f) < 1 ? 1 : (mouseSmooth * 0.55f)) + 0.5);
+						mouseOffset_Y = int((targetModel->Position2D.y - ScreenCenterY + 14 ) / ((menu::item::slider_aimspeed * 0.55f) < 1 ? 1 : (menu::item::slider_aimspeed * 0.55f)) + 0.5);
 					//if (mouseOffset_X >= 3 && mouseOffset_X <= 50)
 					//mouseOffset_Y = int((targetModel->Position2D.y - ScreenCenterY + 14) / ((mouseSmooth * 0.7f) < 1 ? 1 : (mouseSmooth * 0.7f)) + 0.5);
 

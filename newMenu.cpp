@@ -28,6 +28,8 @@ namespace function {
 			bool checkbox_debugMode = false;
 			int slider_Rank = 65;
 			float slider_aimheight = 0;
+			float slider_aimspeed = 4;
+			char input_ChangeName[30];
 			//char input_ChangeName[32] = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
 		}
 
@@ -69,22 +71,33 @@ namespace function {
 			if (ImGui::Begin("AVA Hack 2018",0, ImVec2(350.0f, 450.0f), 0.85f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
 				ImGui::Checkbox(u8"透視", &item::checkbox_wallhack);
 				ImGui::Separator();
+
 				ImGui::Checkbox(u8"自瞄", &item::checkbox_aimbot);
 				ImGui::SliderFloat(u8"高度", &item::slider_aimheight, -100.0f, 100.0f, "%.0f", 1.0f);
 				ImGui::SameLine();
 				if(ImGui::Button(u8"重設")){
 					item::slider_aimheight = 0;
 				}
+
+				ImGui::SliderFloat(u8"平滑移動", &item::slider_aimspeed, 1.0f, 10.0f, "%.1f");
+				ImGui::SameLine();
+				if (ImGui::Button(u8"重設")) {
+					item::slider_aimspeed = 4.0f;
+				}
 				ImGui::Separator();
+
+
 				ImGui::Checkbox(u8"自動切槍[F4]", &item::checkbox_QQMacro);
 				ImGui::Separator();
+
 				ImGui::Checkbox(u8"修改名稱", &item::checkbox_ChangeName);
-				static char buf[11] = "\x41\x56\x41\xe5\xa4\x96\xe6\x8e\x9b";
-				ImGui::InputText("", buf, IM_ARRAYSIZE(buf));
+				ImGui::InputText("", item::input_ChangeName, IM_ARRAYSIZE(item::input_ChangeName));
 				ImGui::Separator();
+
 				ImGui::Checkbox(u8"修改等級", &item::checkbox_ChangeRank);
 				ImGui::SliderInt(u8"等級", &item::slider_Rank, 0.0f, 65.0f, "%.0f");
 				ImGui::Separator();
+
 				ImGui::Checkbox(u8"DEBUG", &item::checkbox_debugMode);
 				ImGui::Separator();
 				ImGui::End();

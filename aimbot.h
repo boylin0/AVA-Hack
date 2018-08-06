@@ -7,7 +7,6 @@ extern class CDraw CDraw;
 
 namespace function {
 	namespace aimbot {
-		extern float mouseSmooth;
 		void AddModel(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, UINT MinIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount);
 		void SearchTarget(LPDIRECT3DDEVICE9 pDevice);
 		void doAim();

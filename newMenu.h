@@ -11,7 +11,9 @@ namespace function {
 			extern bool  checkbox_ChangeRank;
 			extern bool  checkbox_debugMode;
 			extern int   slider_Rank;
+			extern float slider_aimspeed;
 			extern float slider_aimheight;
+			extern char  input_ChangeName[30];
 			//extern char input_ChangeName[];
 		}
 		extern bool isMENU;
