@@ -30,7 +30,6 @@ namespace function {
 			float slider_aimheight = 0;
 			float slider_aimspeed = 4;
 			char input_ChangeName[30];
-			//char input_ChangeName[32] = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
 		}
 
 		bool isMENU = false;
@@ -68,7 +67,7 @@ namespace function {
 			ImGui_ImplDX9_NewFrame();
 			ImGui::NewFrame();
 
-			if (ImGui::Begin("AVA Hack 2018",0, ImVec2(350.0f, 450.0f), 0.85f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+			if (ImGui::Begin("AVA Hack 2018",0, ImVec2(400.0f, 450.0f), 0.75f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
 				ImGui::Checkbox(u8"透視", &item::checkbox_wallhack);
 				ImGui::Separator();
 

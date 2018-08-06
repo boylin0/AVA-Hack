@@ -14,7 +14,6 @@ namespace function {
 			extern float slider_aimspeed;
 			extern float slider_aimheight;
 			extern char  input_ChangeName[30];
-			//extern char input_ChangeName[];
 		}
 		extern bool isMENU;
 		void MenuRender();
