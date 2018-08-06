@@ -142,14 +142,14 @@ int main(int, char**)
 			ImGui::Text(u8"fsdfsdad我是中文dfd哈哈a");
 			ImGui::Separator();
 			ImGui::Text("Kanjis: \xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e (nihongo)");
-			static char buf[32] = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
+			static char buf[32] = "\xe6\x97\xa5\xe6\x9c\xac";
 			//static char buf[32] = u8"NIHONGO"; // <- this is how you would write it with C++11, using real kanjis
-			ImGui::InputText("", buf, IM_ARRAYSIZE(buf));
+			ImGui::InputText("名稱", buf, IM_ARRAYSIZE(buf));
 			static float f = 0.0f;
 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f,"%.1f",0.1F);
 			if (ImGui::Button(u8"測試")) {
 				for(int ij=0;ij < (sizeof(buf) / sizeof(char));ij++){
-					printf("%02X\n", (unsigned char)buf[ij]);
+					printf("%X\n", (unsigned char)buf[ij]);
 				}
 			}
 
