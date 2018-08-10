@@ -16,12 +16,14 @@
 
 //ÀY²¯
 //16 3564
+//624 1570
 
 //head no added
-//624 1570 
+//624 1570
 //3854 3811
 #define characterHEAD ( \
-   (NumVertices == 1771 && PrimitiveCount == 1664) \
+   (NumVertices == 122 && PrimitiveCount == 168) \
+|| (NumVertices == 1771 && PrimitiveCount == 1664) \
 || (NumVertices == 110 && PrimitiveCount == 120) \
 || (NumVertices == 1570 && PrimitiveCount==624) \
 || (NumVertices == 58 && PrimitiveCount==60) \
@@ -43,6 +45,10 @@
 || NumVertices == 66 \
 || NumVertices == 82 \
 || NumVertices == 50)
+
+#define unWanted (\
+   (NumVertices == 8 && PrimitiveCount == 2) \
+)
 
 using namespace function;
 
@@ -139,6 +145,7 @@ HRESULT WINAPI Direct3DCreate9_VMTable(VOID)
 
 HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
+	HRESULT r = NULL;
 	CDraw.GetDevice(pDevice);
 	g_font_default->OnLostDevice();
 	g_font_default->OnResetDevice();
@@ -147,9 +154,10 @@ HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pP
 
 	//free imgui resources
 	ImGui_ImplDX9_InvalidateDeviceObjects();
+	r = Reset_Pointer(pDevice, pPresentationParameters);
 	ImGui_ImplDX9_CreateDeviceObjects();
 
-	return Reset_Pointer(pDevice, pPresentationParameters);
+	return r;
 }
 
 
@@ -211,6 +219,14 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 		menu::isMENU = false;
 	}
 
+	if (menu::item::checkbox_QQMacro) {
+		D3DDEVICE_CREATION_PARAMETERS cparams;
+		RECT rect;
+		pDevice->GetCreationParameters(&cparams);
+		GetWindowRect(cparams.hFocusWindow, &rect);
+		CDraw.CircleFilled( ((rect.right - rect.left) / 2.0f) - 3.0f , ((rect.bottom - rect.top) / 2.0f) - 14.0f , 3, 0, full , 4, PURPLE(200) );
+	}
+
 	return EndScene_Pointer(pDevice);
 }
 
@@ -221,12 +237,13 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 	if (pDevice->GetStreamSource(0, &Stream_Data, &Offset, &Stride) == D3D_OK) Stream_Data->Release();
 
-	if (menu::item::checkbox_wallhack && Stride == 32 && StartIndex == 0)
+	if ( (menu::item::checkbox_wallhack && Stride == 32 && StartIndex == 0 && !unWanted) )
 	{
 		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 
 		//if model is head add to target list
-		if ((GetAsyncKeyState(0x45) && menu::item::checkbox_debugMode) || (characterHEAD && menu::item::checkbox_aimbot) ) {
+		if (   (GetAsyncKeyState(0x45) && menu::item::checkbox_debugMode) 
+			|| (characterHEAD && menu::item::checkbox_aimbot) ) {
 			function::aimbot::AddModel(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		}
 	}

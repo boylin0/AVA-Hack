@@ -115,9 +115,9 @@ namespace function {
 
 					if ( (GetAsyncKeyState(0x45)) && menu::item::checkbox_debugMode ) {
 						PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x - 10, (int)ModelInfo[i]->Position2D.y + 20, D3DCOLOR_XRGB(255, 0, 0),
-							"PrimitiveCount: %d\nNumVertices: %d",
-							ModelInfo[i]->PrimitiveCount,
-							ModelInfo[i]->NumVertices);
+							"NumVertices: %d\nPrimitiveCount: %d",
+							ModelInfo[i]->NumVertices,
+							ModelInfo[i]->PrimitiveCount);
 					}
 
 					if (isFocusTargetSet) {
