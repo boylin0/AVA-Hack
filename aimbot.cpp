@@ -120,6 +120,7 @@ namespace function {
 							ModelInfo[i]->PrimitiveCount);
 					}
 
+					// check is found target
 					if (isFocusTargetSet) {
 						if (ModelInfo[i]->BaseIndex == focusModel->BaseIndex
 							&& ModelInfo[i]->MinIndex == focusModel->MinIndex
@@ -128,7 +129,8 @@ namespace function {
 							&& ModelInfo[i]->NumVertices == focusModel->NumVertices
 							&& ModelInfo[i]->PrimitiveCount == focusModel->PrimitiveCount
 							&& minCrosshairDistance > getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
-							&& getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
+							&& getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300
+							&& (ModelInfo[i]->Distance < focusModel->Distance + 2.2f && ModelInfo[i]->Distance > focusModel->Distance - 2.2f) ) {
 							focusModel->Distance = ModelInfo[i]->Distance;
 							targetModel = ModelInfo[i];
 							minCrosshairDistance = getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
@@ -136,11 +138,11 @@ namespace function {
 						}
 
 					}
+					// find closet target relative to crosshair
 					else if (minCrosshairDistance > getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
 						&& getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
 						targetModel = ModelInfo[i];
 						minCrosshairDistance = getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
-						//isFocusTargetSet = false; // new FocusTarget
 						isFoundTarget = true;
 					}
 
