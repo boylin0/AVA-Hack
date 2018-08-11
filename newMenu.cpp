@@ -1,4 +1,5 @@
 ﻿#include "newMenu.h"
+#include "HackFunction.h"
 
 //IMGUI Library
 #include "lib/imgui/imgui.h"
@@ -78,11 +79,12 @@ namespace function {
 					item::slider_aimheight = 0;
 				}
 
-				ImGui::SliderFloat(u8"平滑移動", &item::slider_aimspeed, 1.0f, 10.0f, "%.1f");
+				ImGui::SliderFloat(u8"平滑移動", &item::slider_aimspeed, 1.0f, 8.0f, "%.2f");
 				ImGui::SameLine();
-				if (ImGui::Button(u8"重設")) {
-					item::slider_aimspeed = 4.0f;
-				}
+				if (ImGui::Button(u8"重設")) item::slider_aimspeed = 4.0f;
+				if (ImGui::Button(u8"－")) item::slider_aimspeed -= 0.01f; 
+				ImGui::SameLine();
+				if (ImGui::Button(u8"＋")) item::slider_aimspeed += 0.01f;
 				ImGui::Separator();
 
 

@@ -9,6 +9,9 @@
 #include "lib/imgui/imgui.h"
 #include "lib/imgui/imgui_impl_dx9.h"
 
+//Num | Pri
+//282 520 | 245 385
+
 //head
 //60 38
 //120 110
@@ -17,18 +20,29 @@
 //ÀY²¯
 //16 3564
 //624 1570
+//|| (NumVertices == 3564 && PrimitiveCount == 16)
+//|| (NumVertices == 1920 && PrimitiveCount == 574)
 
 //head no added
 //624 1570
 //3854 3811
 #define characterHEAD ( \
-   (NumVertices == 122 && PrimitiveCount == 168) \
+   (NumVertices == 1290 && PrimitiveCount == 558) \
+|| (NumVertices == 3564 && PrimitiveCount == 16) \
+|| (NumVertices == 1920 && PrimitiveCount == 574) \
+|| (NumVertices == 3748 && PrimitiveCount == 132) \
+|| (NumVertices == 1290 && PrimitiveCount == 574) \
+|| (NumVertices == 2599 && PrimitiveCount == 2365) \
+|| (NumVertices == 3248 && PrimitiveCount == 3796) \
+|| (NumVertices == 5390 && PrimitiveCount == 132) \
+|| (NumVertices == 574 && PrimitiveCount == 539) \
+|| (NumVertices == 122 && PrimitiveCount == 168) \
 || (NumVertices == 1771 && PrimitiveCount == 1664) \
 || (NumVertices == 110 && PrimitiveCount == 120) \
-|| (NumVertices == 1570 && PrimitiveCount==624) \
-|| (NumVertices == 58 && PrimitiveCount==60) \
-|| (NumVertices == 120 && PrimitiveCount==110)  \
-|| (NumVertices == 38 && PrimitiveCount==60)  \
+|| (NumVertices == 1570 && PrimitiveCount == 624) \
+|| (NumVertices == 58 && PrimitiveCount == 60) \
+|| (NumVertices == 120 && PrimitiveCount == 110)  \
+|| (NumVertices == 38 && PrimitiveCount == 60)  \
 || PrimitiveCount == 385 \
 || PrimitiveCount == 531 \
 || (NumVertices == 68 && PrimitiveCount!=80) \
@@ -48,6 +62,11 @@
 
 #define unWanted (\
    (NumVertices == 8 && PrimitiveCount == 2) \
+|| (NumVertices == 12 && PrimitiveCount == 2) \
+|| (NumVertices == 158 && PrimitiveCount == 168) \
+|| (NumVertices == 1737 && PrimitiveCount == 844) \
+|| (NumVertices == 3002 && PrimitiveCount == 1898) \
+|| (NumVertices == 245 && PrimitiveCount == 385) \
 )
 
 using namespace function;
@@ -72,13 +91,6 @@ CreateQuery_Prototype          CreateQuery_Pointer = NULL;
 
 LPD3DXFONT g_font_default;
 class CDraw CDraw;
-
-HRESULT WINAPI Present_Detour(IDirect3DDevice9 *pDevice, CONST RECT *pSourceRect, CONST RECT *pDestRect, HWND hDestWindowOverride, CONST RGNDATA *pDirtyRegion)
-{
-	menu::initMenu(pDevice);
-	return Present_Pointer(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-}
-
 
 HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3DDEVTYPE DeviceType, HWND FocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* PresentationParameters, LPDIRECT3DDEVICE9* Returned_Device_Interface)
 {
@@ -189,6 +201,12 @@ void wallhack_ghostChams(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT B
 	//Device_Interface->SetPixelShader(Back);
 }
 
+HRESULT WINAPI Present_Detour(IDirect3DDevice9 *pDevice, CONST RECT *pSourceRect, CONST RECT *pDestRect, HWND hDestWindowOverride, CONST RGNDATA *pDirtyRegion)
+{
+	menu::initMenu(pDevice);
+	aimbot::Release();
+	return Present_Pointer(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+}
 
 HRESULT WINAPI BeginScene_Detour(LPDIRECT3DDEVICE9 *pDevice)
 {

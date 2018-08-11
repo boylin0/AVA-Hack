@@ -77,7 +77,7 @@ namespace function {
 
 			float RealDistance = getDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100;
 
-			pModel->Position2D.y = vOut.y + (float)menu::item::slider_aimheight;
+			pModel->Position2D.y = vOut.y + (float)menu::item::slider_aimheight - 3;
 			pModel->Position2D.x = vOut.x;
 			pModel->Position2D.z = vOut.z;
 			pModel->Distance = RealDistance;
@@ -130,7 +130,7 @@ namespace function {
 							&& ModelInfo[i]->PrimitiveCount == focusModel->PrimitiveCount
 							&& minCrosshairDistance > getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
 							&& getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300
-							&& (ModelInfo[i]->Distance < focusModel->Distance + 2.2f && ModelInfo[i]->Distance > focusModel->Distance - 2.2f) ) {
+							&& (ModelInfo[i]->Distance < focusModel->Distance + 2.0f && ModelInfo[i]->Distance > focusModel->Distance - 2.0f) ) {
 							focusModel->Distance = ModelInfo[i]->Distance;
 							targetModel = ModelInfo[i];
 							minCrosshairDistance = getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
@@ -148,7 +148,6 @@ namespace function {
 
 				}
 
-				ModelInfo.clear();
 			}
 		}
 
@@ -187,6 +186,15 @@ namespace function {
 				isFocusTargetSet = false;
 			}
 		}
+
+		int isSecondAdjustment = 3;
+		float pre_ModelInfo_X = 0;
+		float pre_ModelInfo_Y = 0;
+
+		void Release() {
+			ModelInfo.clear();
+		}
+
 
 	}//namespace aimbot
 }//namespace hack
