@@ -51,9 +51,7 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 		}
 			
 		//hack function
-		DoQQMacro();
-		DoChangeRank();
-		DoChangeName();
+		DoMemoryHack();
 
 		//hook d3d
 		hookD3Dfunction();

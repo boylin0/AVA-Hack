@@ -21,16 +21,18 @@ LRESULT CALLBACK hWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 namespace function {
 	namespace menu {
 		namespace item {
-			bool checkbox_wallhack = false;
-			bool checkbox_aimbot = false;
-			bool checkbox_QQMacro = false;
-			bool checkbox_ChangeName = false;
-			bool checkbox_ChangeRank = false;
-			bool checkbox_debugMode = false;
-			int slider_Rank = 65;
+			bool  checkbox_wallhack = false;
+			bool  checkbox_aimbot = false;
+			bool  checkbox_QQMacro = false;
+			bool  checkbox_ChangeName = false;
+			bool  checkbox_ChangeRank = false;
+			bool  checkbox_debugMode = false;
+			bool  checkbox_unlimitAmmo = false;
+			bool  checkbox_noSpread = false;
+			int   slider_Rank = 65;
 			float slider_aimheight = 0;
 			float slider_aimspeed = 4;
-			char input_ChangeName[30];
+			char  input_ChangeName[30];
 		}
 
 		bool isMENU = false;
@@ -87,6 +89,11 @@ namespace function {
 				if (ImGui::Button(u8"＋")) item::slider_aimspeed += 0.01f;
 				ImGui::Separator();
 
+				ImGui::Checkbox(u8"無限子彈", &item::checkbox_unlimitAmmo);
+				ImGui::Separator();
+
+				ImGui::Checkbox(u8"防止子彈飄移", &item::checkbox_noSpread);
+				ImGui::Separator();
 
 				ImGui::Checkbox(u8"自動切槍[F4]", &item::checkbox_QQMacro);
 				ImGui::Separator();
