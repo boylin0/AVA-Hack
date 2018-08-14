@@ -9,7 +9,4 @@ extern class d3dMenu d3dmenu;
 extern class Memory memory;
 extern class logConsole console;
 
-
-void DoQQMacro();
-void DoChangeName();
-void DoChangeRank();
+void DoMemoryHack();

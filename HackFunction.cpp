@@ -4,14 +4,14 @@
 #include "newMenu.h"
 #include "utils.h"
 
+#define infoBaseAddress     0x0242F044    //00 00 EF 28 18 57 C2 20 00 00 00 00 00 00
+#define weaponBaseAddress   0x0244BFEC
+
 using namespace function;
 
 class Memory memory;
 
 BYTE orignal_name[22] = { NULL };
-
-//00 00 EF 28 18 57 C2 20 00 00 00 00 00 00
-const DWORD infoBaseAddress = 0x0242F044;
 
 std::wstring utf8_to_utf16(const std::string& utf8)
 {
@@ -89,7 +89,7 @@ std::wstring utf8_to_utf16(const std::string& utf8)
 
 void DoChangeRank() {
 	if (menu::item::checkbox_ChangeRank) {
-		DWORD offsets[] = { 0x90, 0x3E };
+		vector<DWORD> offsets = { 0x90, 0x3E };
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + infoBaseAddress, offsets);
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &menu::item::slider_Rank, sizeof(menu::item::slider_Rank), 0);
 	}
@@ -97,7 +97,7 @@ void DoChangeRank() {
 
 void DoChangeName() {
 	if (menu::item::checkbox_ChangeName) {
-		DWORD offsets[] = { 0x90, 0x28 };
+		vector<DWORD> offsets = { 0x90, 0x28 };
 		//0242F044
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + infoBaseAddress, offsets);
 		if (p == 0) {
@@ -117,7 +117,7 @@ void DoChangeName() {
 			WriteProcessMemory(utils::hProcess, (LPVOID)p, &name, sizeof(name), 0);
 		}
 	} else if(orignal_name[0] != 0x0) {
-		DWORD offsets[] = { 0x90, 0x28 };
+		vector<DWORD> offsets = { 0x90, 0x28 };
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + infoBaseAddress, offsets);
 		if (p == 0) {
 			//error
@@ -134,4 +134,34 @@ void DoQQMacro() {
 	if (menu::item::checkbox_QQMacro && (GetAsyncKeyState(VK_LBUTTON) & 0x1) && utils::isFocusOnAVA && !menu::isMENU) {
 		function::QQMacro::doQQMacro();
 	}
+}
+
+void DoUnlimitAmmo() {
+	if (menu::item::checkbox_unlimitAmmo) {
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7A2 };
+		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		BYTE myval[1] = { 0x1 };
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
+		offsets = { 0x428, 0x284, 0x338 };
+		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		myval[1] = { 0x0 };
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
+	}
+}
+
+void DoNoSpread() {
+	if (menu::item::checkbox_noSpread) {
+		vector<DWORD> offsets = { 0x428, 0x284, 0x8BC };
+		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		int myval = 0;
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
+	}
+}
+
+void DoMemoryHack() {
+	DoQQMacro();
+	DoChangeRank();
+	DoChangeName();
+	DoUnlimitAmmo();
+	DoNoSpread();
 }

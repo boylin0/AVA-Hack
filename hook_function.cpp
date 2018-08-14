@@ -17,29 +17,27 @@
 //120 110
 //60 58
 
-//ÀY²¯
-//16 3564
-//624 1570
+//helmet
 //|| (NumVertices == 3564 && PrimitiveCount == 16)
 //|| (NumVertices == 1920 && PrimitiveCount == 574)
+//|| (NumVertices == 5390 && PrimitiveCount == 132)
+//|| (NumVertices == 2599 && PrimitiveCount == 2365)
+//|| (NumVertices == 1290 && PrimitiveCount == 574) \
+//|| (NumVertices == 1290 && PrimitiveCount == 558) \
+//|| (NumVertices == 3748 && PrimitiveCount == 132) \
+//|| (NumVertices == 1570 && PrimitiveCount == 624) \
+//|| (NumVertices == 3248 && PrimitiveCount == 3796) \
+//|| (NumVertices == 3564 && PrimitiveCount == 16) \
+//|| (NumVertices == 1920 && PrimitiveCount == 574) \
+//|| (NumVertices == 1771 && PrimitiveCount == 1664) \
 
 //head no added
 //624 1570
 //3854 3811
 #define characterHEAD ( \
-   (NumVertices == 1290 && PrimitiveCount == 558) \
-|| (NumVertices == 3564 && PrimitiveCount == 16) \
-|| (NumVertices == 1920 && PrimitiveCount == 574) \
-|| (NumVertices == 3748 && PrimitiveCount == 132) \
-|| (NumVertices == 1290 && PrimitiveCount == 574) \
-|| (NumVertices == 2599 && PrimitiveCount == 2365) \
-|| (NumVertices == 3248 && PrimitiveCount == 3796) \
-|| (NumVertices == 5390 && PrimitiveCount == 132) \
-|| (NumVertices == 574 && PrimitiveCount == 539) \
+   (NumVertices == 574 && PrimitiveCount == 539) \
 || (NumVertices == 122 && PrimitiveCount == 168) \
-|| (NumVertices == 1771 && PrimitiveCount == 1664) \
 || (NumVertices == 110 && PrimitiveCount == 120) \
-|| (NumVertices == 1570 && PrimitiveCount == 624) \
 || (NumVertices == 58 && PrimitiveCount == 60) \
 || (NumVertices == 120 && PrimitiveCount == 110)  \
 || (NumVertices == 38 && PrimitiveCount == 60)  \
@@ -60,10 +58,10 @@
 || NumVertices == 82 \
 || NumVertices == 50)
 
+//|| (NumVertices == 158 && PrimitiveCount == 168)
 #define unWanted (\
    (NumVertices == 8 && PrimitiveCount == 2) \
 || (NumVertices == 12 && PrimitiveCount == 2) \
-|| (NumVertices == 158 && PrimitiveCount == 168) \
 || (NumVertices == 1737 && PrimitiveCount == 844) \
 || (NumVertices == 3002 && PrimitiveCount == 1898) \
 || (NumVertices == 245 && PrimitiveCount == 385) \
@@ -255,7 +253,7 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 	if (pDevice->GetStreamSource(0, &Stream_Data, &Offset, &Stride) == D3D_OK) Stream_Data->Release();
 
-	if ( (menu::item::checkbox_wallhack && Stride == 32 && StartIndex == 0 && !unWanted) )
+	if ( (menu::item::checkbox_wallhack && (Stride == 32 || Stride == 88) && StartIndex == 0 && !unWanted) )
 	{
 		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 
@@ -265,6 +263,7 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 			function::aimbot::AddModel(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		}
 	}
+
 
 	return DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 }

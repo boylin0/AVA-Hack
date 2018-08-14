@@ -10,6 +10,8 @@ namespace function {
 			extern bool  checkbox_ChangeName;
 			extern bool  checkbox_ChangeRank;
 			extern bool  checkbox_debugMode;
+			extern bool  checkbox_unlimitAmmo;
+			extern bool  checkbox_noSpread;
 			extern int   slider_Rank;
 			extern float slider_aimspeed;
 			extern float slider_aimheight;

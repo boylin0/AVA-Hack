@@ -156,6 +156,13 @@ namespace function {
 				if (isFoundTarget) {
 					//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
 					CDraw.Circle(targetModel->Position2D.x, targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
+					
+					if(menu::item::checkbox_debugMode)
+					PrintText(g_font_default, (int)targetModel->Position2D.x - 10, (int)targetModel->Position2D.y + 20, LAWNGREEN(255),
+						"NumVertices: %d\nPrimitiveCount: %d",
+						targetModel->NumVertices,
+						targetModel->PrimitiveCount);
+
 
 					mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX +  3 ) / menu::item::slider_aimspeed;
 					mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 14 ) / menu::item::slider_aimspeed;
