@@ -5,7 +5,7 @@
 #include "utils.h"
 
 #define infoBaseAddress     0x0242F044    //00 00 EF 28 18 57 C2 20 00 00 00 00 00 00
-#define weaponBaseAddress   0x0244BFEC
+#define weaponBaseAddress   0x0244BFEC	  //00 A8 7F 90 40 1A 4C 18 01 00 00 00 00 00 00 00
 
 using namespace function;
 
@@ -151,10 +151,63 @@ void DoUnlimitAmmo() {
 
 void DoNoSpread() {
 	if (menu::item::checkbox_noSpread) {
-		vector<DWORD> offsets = { 0x428, 0x284, 0x8BC };
+		//sway
+		vector<DWORD> offsets = { 0x428, 0x284, 0x86C };
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
-		int myval = 0;
+		float myval = 0;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
+		//aim accuracy
+		offsets = { 0x428, 0x284, 0x8BC };
+		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		int myval2 = 0;
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval2, sizeof(myval2), 0);
+		//crossfire size
+		offsets = { 0x428, 0x284, 0x79D };
+		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		BYTE myval3 = 0x0;
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval3, sizeof(myval3), 0);
+	}
+}
+
+void DoUAVHack() {
+	static bool isUav = false;
+	if (menu::item::checkbox_UAV) {
+		//UAV
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7B6 };
+		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		BYTE myval = 0x50;
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
+		isUav = true;
+	}
+	else if(isUav) {
+		//UAV
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7B6 };
+		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		BYTE myval = 0xC0;
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
+		isUav = false;
+	}
+}
+
+void DoSuperWeapon() {
+	static bool isSuperWeapon = false;
+	static int original_val = 0 ;
+	if (menu::item::checkbox_SuperWeapon) {
+		//SuperWeapon
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7BC };
+		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		int myval = 55;
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
+		if (isSuperWeapon == false) ReadProcessMemory(utils::hProcess, (LPCVOID)p, &original_val, sizeof(original_val), 0);
+		isSuperWeapon = true;
+	}
+	else if(isSuperWeapon){
+		//restore SuperWeapon
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7BC };
+		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		if (original_val == 0) original_val = 1;
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &original_val, sizeof(original_val), 0);
+		isSuperWeapon = false;
 	}
 }
 
@@ -164,4 +217,6 @@ void DoMemoryHack() {
 	DoChangeName();
 	DoUnlimitAmmo();
 	DoNoSpread();
+	DoUAVHack();
+	DoSuperWeapon();
 }

@@ -43,7 +43,7 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 
 	while (1)
 	{
-		Sleep(100);
+		Sleep(1);
 
 		//toggle QQMacro function by hotkey
 		if ( (GetAsyncKeyState(VK_F4) & 0x1) && utils::isFocusOnAVA() ) {

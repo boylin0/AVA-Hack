@@ -7,5 +7,6 @@ namespace function {
 		extern DWORD baseAddress;
 		extern HWND hWnd;
 		bool isFocusOnAVA();
+		bool isFile(const std::string& name);
 	}
 }

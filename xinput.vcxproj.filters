@@ -56,6 +56,9 @@
     <Filter Include="src\function\d3d_hook">
       <UniqueIdentifier>{de7877d2-38e5-450e-b040-046a31a0260b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\lib\IniRW">
+      <UniqueIdentifier>{88ffc2c6-513c-423d-b310-835edbf1419b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -130,6 +133,12 @@
     <ClInclude Include="lib\imgui\imgui_impl_win32.h">
       <Filter>src\lib\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="IniReader.h">
+      <Filter>src\lib\IniRW</Filter>
+    </ClInclude>
+    <ClInclude Include="IniWriter.h">
+      <Filter>src\lib\IniRW</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lib\drawing\draw.cpp">
@@ -180,6 +189,12 @@
     </ClCompile>
     <ClCompile Include="lib\imgui\imgui_impl_win32.cpp">
       <Filter>src\lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="IniReader.cpp">
+      <Filter>src\lib\IniRW</Filter>
+    </ClCompile>
+    <ClCompile Include="IniWriter.cpp">
+      <Filter>src\lib\IniRW</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

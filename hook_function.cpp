@@ -31,6 +31,17 @@
 //|| (NumVertices == 1920 && PrimitiveCount == 574) \
 //|| (NumVertices == 1771 && PrimitiveCount == 1664) \
 
+//zombie
+/*
+|| NumVertices == 473 && PrimitiveCount == 134 \
+|| NumVertices == 785 && PrimitiveCount == 997 \
+|| NumVertices == 4387 && PrimitiveCount == 5992 \
+|| NumVertices == 2829 && PrimitiveCount == 3931 \
+|| NumVertices == 3571 && PrimitiveCount == 5557 \
+|| NumVertices == 2076 && PrimitiveCount == 2981 \
+|| NumVertices == 2683 && PrimitiveCount == 3993 \
+*/
+
 //head no added
 //624 1570
 //3854 3811
@@ -56,7 +67,8 @@
 || NumVertices == 254 \
 || NumVertices == 66 \
 || NumVertices == 82 \
-|| NumVertices == 50)
+|| NumVertices == 50 \
+)
 
 //|| (NumVertices == 158 && PrimitiveCount == 168)
 #define unWanted (\

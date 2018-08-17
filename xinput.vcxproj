@@ -98,6 +98,8 @@
     <ClInclude Include="aimbot.h" />
     <ClInclude Include="HackFunction.h" />
     <ClInclude Include="hook_function.h" />
+    <ClInclude Include="IniReader.h" />
+    <ClInclude Include="IniWriter.h" />
     <ClInclude Include="Lib\drawing\colors.h" />
     <ClInclude Include="Lib\drawing\draw.h" />
     <ClInclude Include="Lib\imgui\imconfig.h" />
@@ -131,6 +133,8 @@
     </ClCompile>
     <ClCompile Include="HackFunction.cpp" />
     <ClCompile Include="hook_function.cpp" />
+    <ClCompile Include="IniReader.cpp" />
+    <ClCompile Include="IniWriter.cpp" />
     <ClCompile Include="Lib\drawing\draw.cpp" />
     <ClCompile Include="Lib\imgui\imgui.cpp" />
     <ClCompile Include="Lib\imgui\imgui_demo.cpp" />

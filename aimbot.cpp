@@ -5,6 +5,21 @@
 #include "newMenu.h"
 #include "utils.h"
 
+//zombie
+/*
+|| pModel->NumVertices == 785 && pModel->PrimitiveCount == 997 \
+|| pModel->NumVertices == 4387 && pModel->PrimitiveCount == 5992 \
+|| pModel->NumVertices == 2829 && pModel->PrimitiveCount == 3931 \
+|| pModel->NumVertices == 3571 && pModel->PrimitiveCount == 5557 \
+|| pModel->NumVertices == 2076 && pModel->PrimitiveCount == 2981 \
+|| pModel->NumVertices == 2683 && pModel->PrimitiveCount == 3993 \
+*/
+
+#define fixHead (\
+pModel->NumVertices == 473 && pModel->PrimitiveCount == 134 \
+)
+
+
 namespace function {
 	namespace aimbot {
 	
@@ -77,18 +92,25 @@ namespace function {
 
 			float RealDistance = getDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100;
 
-			pModel->Position2D.y = vOut.y + (float)menu::item::slider_aimheight - 3;
-			pModel->Position2D.x = vOut.x;
-			pModel->Position2D.z = vOut.z;
-			pModel->Distance = RealDistance;
-			pModel->Type = Type;
-			pModel->BaseIndex = BaseIndex;
-			pModel->MinIndex = MinIndex;
-			pModel->NumVertices = NumVertices;
-			pModel->StartIndex = StartIndex;
-			pModel->PrimitiveCount = PrimitiveCount;
+			if (vOut.z < 1.0f) {
+				pModel->Position2D.y = vOut.y + (float)menu::item::slider_aimheight - 3;
+				pModel->Position2D.x = vOut.x;
+				pModel->Position2D.z = vOut.z;
+				pModel->Distance = RealDistance;
+				pModel->Type = Type;
+				pModel->BaseIndex = BaseIndex;
+				pModel->MinIndex = MinIndex;
+				pModel->NumVertices = NumVertices;
+				pModel->StartIndex = StartIndex;
+				pModel->PrimitiveCount = PrimitiveCount;
 
-			ModelInfo.push_back(pModel);
+				if (fixHead) {
+					pModel->Position2D.y -= 50;
+				}
+					
+
+				ModelInfo.push_back(pModel);
+			}
 		}
 
 		void SearchTarget(LPDIRECT3DDEVICE9 pDevice) {

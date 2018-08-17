@@ -12,6 +12,8 @@ namespace function {
 			extern bool  checkbox_debugMode;
 			extern bool  checkbox_unlimitAmmo;
 			extern bool  checkbox_noSpread;
+			extern bool  checkbox_UAV;
+			extern bool  checkbox_SuperWeapon;
 			extern int   slider_Rank;
 			extern float slider_aimspeed;
 			extern float slider_aimheight;
