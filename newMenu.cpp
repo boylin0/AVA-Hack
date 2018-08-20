@@ -103,7 +103,7 @@ namespace function {
 			ImGui_ImplDX9_NewFrame();
 			ImGui::NewFrame();
 
-			if (ImGui::Begin("AVA Hack 2018", &isMENU, ImVec2(450.0f, 500.0f), 0.75f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+			if (ImGui::Begin("AVA Hack 2018", &isMENU, ImVec2(500.0f, 500.0f), 0.75f, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
 				int buttonID = 0;
 				ImGui::Checkbox(u8"透視", &item::checkbox_wallhack);
 				ImGui::Separator();
@@ -111,7 +111,7 @@ namespace function {
 				ImGui::Checkbox(u8"自瞄", &item::checkbox_aimbot);
 
 				ImGui::SliderFloat(u8"高度", &item::slider_aimheight, -100.0f, 100.0f, "%.0f", 1.0f);
-				ImGui::SameLine(); ShowHelpMarker(u8"調整瞄準的高度\n(往上<- ->往下)");
+				ImGui::SameLine(); ShowHelpMarker(u8"調整瞄準的高度\n(往下<- ->往上)");
 				ImGui::SameLine(ImGui::GetWindowWidth() - 45); ImGui::PushID(buttonID); if (ImGui::Button(u8"重設")) { item::slider_aimheight = 0; } ImGui::PopID(); buttonID++;
 				
 				ImGui::SliderFloat(u8"瞄準速度", &item::slider_aimspeed, 1.0f, 8.0f, "%.2f");
@@ -119,7 +119,7 @@ namespace function {
 				ImGui::SameLine(ImGui::GetWindowWidth() - 45);  ImGui::PushID(buttonID); if (ImGui::Button(u8"重設")) item::slider_aimspeed = 4.0f; ImGui::PopID(); buttonID++;
 				if (ImGui::ArrowButton("##left", ImGuiDir_Left)) { item::slider_aimspeed -= 0.01f; };  ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x); if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { item::slider_aimspeed += 0.01f; }
 				ImGui::Separator();
-
+				
 				ImGui::Checkbox(u8"UAV透視", &item::checkbox_UAV);
 				ImGui::Separator();
 

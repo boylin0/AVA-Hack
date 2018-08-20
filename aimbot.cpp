@@ -16,7 +16,8 @@
 */
 
 #define fixHead (\
-pModel->NumVertices == 473 && pModel->PrimitiveCount == 134 \
+   pModel->NumVertices == 473 && pModel->PrimitiveCount == 134 \
+|| pModel->NumVertices == 882 && pModel->PrimitiveCount == 304 \
 )
 
 
@@ -78,7 +79,7 @@ namespace function {
 			pDevice->GetViewport(&g_ViewPort);
 
 			D3DXMATRIX pProjection, pView, pWorld;
-			D3DXVECTOR3 vOut(0, 0, 0), vIn(0, 0, 1);
+			D3DXVECTOR3 vOut(0, 0, 0), vIn(0, 0, (float)menu::item::slider_aimheight);
 
 			pDevice->GetVertexShaderConstantF(0, pProjection, 4);
 			pDevice->GetVertexShaderConstantF(230, pView, 4);
@@ -93,7 +94,7 @@ namespace function {
 			float RealDistance = getDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100;
 
 			if (vOut.z < 1.0f) {
-				pModel->Position2D.y = vOut.y + (float)menu::item::slider_aimheight - 3;
+				pModel->Position2D.y = vOut.y;
 				pModel->Position2D.x = vOut.x;
 				pModel->Position2D.z = vOut.z;
 				pModel->Distance = RealDistance;

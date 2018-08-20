@@ -46,17 +46,7 @@
 //624 1570
 //3854 3811
 #define characterHEAD ( \
-   (NumVertices == 574 && PrimitiveCount == 539) \
-|| (NumVertices == 122 && PrimitiveCount == 168) \
-|| (NumVertices == 110 && PrimitiveCount == 120) \
-|| (NumVertices == 58 && PrimitiveCount == 60) \
-|| (NumVertices == 120 && PrimitiveCount == 110)  \
-|| (NumVertices == 38 && PrimitiveCount == 60)  \
-|| PrimitiveCount == 385 \
-|| PrimitiveCount == 531 \
-|| (NumVertices == 68 && PrimitiveCount!=80) \
-|| (NumVertices == 122 && PrimitiveCount!=140) \
-|| NumVertices  == 114 \
+   NumVertices  == 114 \
 || NumVertices == 282 \
 || NumVertices == 74 \
 || NumVertices == 194 \
@@ -68,6 +58,18 @@
 || NumVertices == 66 \
 || NumVertices == 82 \
 || NumVertices == 50 \
+|| (NumVertices == 574 && PrimitiveCount == 539) \
+|| (NumVertices == 122 && PrimitiveCount == 168) \
+|| (NumVertices == 110 && PrimitiveCount == 120) \
+|| (NumVertices == 58 && PrimitiveCount == 60) \
+|| (NumVertices == 120 && PrimitiveCount == 110)  \
+|| (NumVertices == 38 && PrimitiveCount == 60)  \
+|| PrimitiveCount == 385 \
+|| PrimitiveCount == 531 \
+|| (NumVertices == 68 && PrimitiveCount!=80) \
+|| (NumVertices == 122 && PrimitiveCount!=140) \
+|| NumVertices == 882 && PrimitiveCount == 304 \
+|| NumVertices == 473 && PrimitiveCount == 134 \
 )
 
 //|| (NumVertices == 158 && PrimitiveCount == 168)

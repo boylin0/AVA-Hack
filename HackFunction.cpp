@@ -166,6 +166,16 @@ void DoNoSpread() {
 		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
 		BYTE myval3 = 0x0;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval3, sizeof(myval3), 0);
+		//no Spread (up down)
+		offsets = { 0x428, 0x284, 0x9AF };
+		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		BYTE myval4 = 0x0;
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval4, sizeof(myval4), 0);
+		//no Spread (left right)
+		offsets = { 0x428, 0x284, 0x9AB };
+		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		BYTE myval5 = 0x0;
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval5, sizeof(myval5), 0);
 	}
 }
 
@@ -196,7 +206,7 @@ void DoSuperWeapon() {
 		//SuperWeapon
 		vector<DWORD> offsets = { 0x428, 0x284, 0x7BC };
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
-		int myval = 55;
+		int myval = 100;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
 		if (isSuperWeapon == false) ReadProcessMemory(utils::hProcess, (LPCVOID)p, &original_val, sizeof(original_val), 0);
 		isSuperWeapon = true;
