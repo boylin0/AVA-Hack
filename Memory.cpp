@@ -18,12 +18,12 @@ DWORD Memory::getModuleBase(const wchar_t* ModuleName, DWORD procID)
 	return NULL;
 }
 
-DWORD Memory::readPointer(HANDLE hProcess, DWORD baseAddress, DWORD offsets[]) {
+DWORD Memory::readPointer(HANDLE hProcess, DWORD baseAddress, vector<DWORD> offsets) {
 	DWORD p = baseAddress;
-	for (int i = 0; i <= sizeof(offsets) / sizeof(DWORD); i++) {
+	for (vector<DWORD>::iterator it = offsets.begin(); it != offsets.end(); ++it) {
 		p = read_remote_pointer(hProcess, p);
 		if (!p)	return 0;
-		p += offsets[i];
+		p += *it;
 	}
 	return p;
 }

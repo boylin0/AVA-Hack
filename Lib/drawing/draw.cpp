@@ -1,4 +1,4 @@
-#include <vector>
+#include "../../stdafx.h"
 #include "draw.h"
  
 void CDraw::Reset()

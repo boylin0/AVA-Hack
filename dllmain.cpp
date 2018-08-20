@@ -2,35 +2,15 @@
 #include "stdafx.h"
 
 #include "Memory.h"
-#include "logConsole.h"
-#include "d3dmenu.h"
 #include "HackFunction.h"
 #include "hook_function.h"
+#include "newMenu.h"
+#include "utils.h"
+//IMGUI Library
+#include "lib/imgui/imgui.h"
+#include "lib/imgui/imgui_impl_dx9.h"
 
-using namespace std;
-
-//D3D
-//=====================================================================================
-
-DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID);
-
-//=====================================================================================
-
-class Memory Memory;
-class d3dMenu d3dmenu;
-class logConsole console;
-
-//process details
-HANDLE hProcess;
-DWORD baseAddress;
-
-bool menu = false;
-
-bool func_changename = false,
-	 func_wallhack = false,
-	 func_QQMacro = false;
-
-BYTE orignal_name[22] = { NULL };
+using namespace function;
 
 
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved )
@@ -53,44 +33,27 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 {
 	UNREFERENCED_PARAMETER(Param);
 
-	hProcess = GetCurrentProcess();
-	baseAddress = Memory.getModuleBase(L"AVA.exe", GetCurrentProcessId());
+	//fetch process information for memory hacking
+	utils::hProcess = GetCurrentProcess();
+	utils::baseAddress = memory.getModuleBase(L"AVA.exe", GetCurrentProcessId());
+	utils::hWnd = FindWindowA("LaunchUnrealUWindowsClient", "Alliance of Valiant Arms");
 
 	//start logConsole
-	
-	console.logMessage("Game Window Started", 0);
+	console::message("Game Window Started", 0);
 
 	while (1)
 	{
-		Sleep(100);
-		if (isFocusOnAVA()) {
+		Sleep(1);
 
-			if ((GetAsyncKeyState(VK_HOME) & 0x1)) {
-				menu = !menu;
-				console.logMessage("Menu:", 3, true, true, false);
-				console.logMessage( (menu == 1 ? "On":"Off") , 3, false, false, true);
-			}
-			if ((GetAsyncKeyState(VK_F4) & 0x1) && menu) {
-				ToggleWallHack();
-				console.logMessage("function_wallhack:", 3, true, true, false);
-				console.logMessage( (func_wallhack == 1 ? "On" : "Off") , 3, false, false, true);
-			}
-			if ((GetAsyncKeyState(VK_F5) & 0x1) && menu) {
-				ToggleChangeName();
-				console.logMessage("function_changename:", 3, true, true, false);
-				console.logMessage( (func_changename == 1 ? "On" : "Off") , 3, false, false, true);
-			}
-			if ((GetAsyncKeyState(VK_F6) & 0x1) && menu) {
-				ToggleQQMacro();
-				console.logMessage("function_QQMacro:", 3, true, true, false);
-				console.logMessage( (func_QQMacro == 1 ? "On" : "Off") , 3, false, false, true);
-			}
-			
-			DoQQMacro();
+		//toggle QQMacro function by hotkey
+		if ( (GetAsyncKeyState(VK_F4) & 0x1) && utils::isFocusOnAVA() ) {
+			function::menu::item::checkbox_QQMacro = !function::menu::item::checkbox_QQMacro;
 		}
+			
+		//hack function
+		DoMemoryHack();
 
-
-
+		//hook d3d
 		hookD3Dfunction();
 	}
 

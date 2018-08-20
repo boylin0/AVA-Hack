@@ -1,87 +1,145 @@
 #include "stdafx.h"
 #include "hook_function.h"
-#include "lib\drawing\draw.h"
+#include "lib/drawing/draw.h"
+#include "aimbot.h"
+#include "newMenu.h"
+#include "utils.h"
 
+//IMGUI Library
+#include "lib/imgui/imgui.h"
+#include "lib/imgui/imgui_impl_dx9.h"
 
-//68 ªª®v head
-//68 122
-#define characterHEAD ((NumVertices == 68 && PrimitiveCount!=80) || (NumVertices == 122 && PrimitiveCount!=140) || NumVertices  == 114|| NumVertices == 282 || NumVertices == 74 || NumVertices == 194 || NumVertices == 34 || NumVertices == 26 || NumVertices == 158 ||NumVertices == 130 ||NumVertices == 254 ||NumVertices == 66 || NumVertices == 82 ||NumVertices == 50)
+//Num | Pri
+//282 520 | 245 385
+
+//head
+//60 38
+//120 110
+//60 58
+
+//helmet
+//|| (NumVertices == 3564 && PrimitiveCount == 16)
+//|| (NumVertices == 1920 && PrimitiveCount == 574)
+//|| (NumVertices == 5390 && PrimitiveCount == 132)
+//|| (NumVertices == 2599 && PrimitiveCount == 2365)
+//|| (NumVertices == 1290 && PrimitiveCount == 574) \
+//|| (NumVertices == 1290 && PrimitiveCount == 558) \
+//|| (NumVertices == 3748 && PrimitiveCount == 132) \
+//|| (NumVertices == 1570 && PrimitiveCount == 624) \
+//|| (NumVertices == 3248 && PrimitiveCount == 3796) \
+//|| (NumVertices == 3564 && PrimitiveCount == 16) \
+//|| (NumVertices == 1920 && PrimitiveCount == 574) \
+//|| (NumVertices == 1771 && PrimitiveCount == 1664) \
+
+//zombie
+/*
+|| NumVertices == 473 && PrimitiveCount == 134 \
+|| NumVertices == 785 && PrimitiveCount == 997 \
+|| NumVertices == 4387 && PrimitiveCount == 5992 \
+|| NumVertices == 2829 && PrimitiveCount == 3931 \
+|| NumVertices == 3571 && PrimitiveCount == 5557 \
+|| NumVertices == 2076 && PrimitiveCount == 2981 \
+|| NumVertices == 2683 && PrimitiveCount == 3993 \
+*/
+
+//head no added
+//624 1570
+//3854 3811
+#define characterHEAD ( \
+   NumVertices  == 114 \
+|| NumVertices == 282 \
+|| NumVertices == 74 \
+|| NumVertices == 194 \
+|| NumVertices == 34 \
+|| NumVertices == 26 \
+|| NumVertices == 158 \
+|| NumVertices == 130 \
+|| NumVertices == 254 \
+|| NumVertices == 66 \
+|| NumVertices == 82 \
+|| NumVertices == 50 \
+|| (NumVertices == 574 && PrimitiveCount == 539) \
+|| (NumVertices == 122 && PrimitiveCount == 168) \
+|| (NumVertices == 110 && PrimitiveCount == 120) \
+|| (NumVertices == 58 && PrimitiveCount == 60) \
+|| (NumVertices == 120 && PrimitiveCount == 110)  \
+|| (NumVertices == 38 && PrimitiveCount == 60)  \
+|| PrimitiveCount == 385 \
+|| PrimitiveCount == 531 \
+|| (NumVertices == 68 && PrimitiveCount!=80) \
+|| (NumVertices == 122 && PrimitiveCount!=140) \
+|| NumVertices == 882 && PrimitiveCount == 304 \
+|| NumVertices == 473 && PrimitiveCount == 134 \
+)
+
+//|| (NumVertices == 158 && PrimitiveCount == 168)
+#define unWanted (\
+   (NumVertices == 8 && PrimitiveCount == 2) \
+|| (NumVertices == 12 && PrimitiveCount == 2) \
+|| (NumVertices == 1737 && PrimitiveCount == 844) \
+|| (NumVertices == 3002 && PrimitiveCount == 1898) \
+|| (NumVertices == 245 && PrimitiveCount == 385) \
+)
+
+using namespace function;
+
 PDWORD Direct3D_VMTable = NULL;
-bool fCall = true;
 
 typedef HRESULT(WINAPI* CreateDevice_Prototype)          (LPDIRECT3D9, UINT, D3DDEVTYPE, HWND, DWORD, D3DPRESENT_PARAMETERS*, LPDIRECT3DDEVICE9*);
 typedef HRESULT(WINAPI* Reset_Prototype)                 (LPDIRECT3DDEVICE9, D3DPRESENT_PARAMETERS*);
+typedef HRESULT(WINAPI* Present_Prototype)               (IDirect3DDevice9 *, CONST RECT *, CONST RECT *, HWND, CONST RGNDATA *);
+typedef HRESULT(WINAPI * BeginScene_Prototype)           (LPDIRECT3DDEVICE9 *);
 typedef HRESULT(WINAPI* EndScene_Prototype)              (LPDIRECT3DDEVICE9);
 typedef HRESULT(WINAPI* DrawIndexedPrimitive_Prototype)  (LPDIRECT3DDEVICE9, D3DPRIMITIVETYPE, INT, UINT, UINT, UINT, UINT);
 typedef HRESULT(WINAPI* CreateQuery_Prototype)           (LPDIRECT3DDEVICE9, D3DQUERYTYPE, IDirect3DQuery9**);
 
 CreateDevice_Prototype         CreateDevice_Pointer = NULL;
 Reset_Prototype                Reset_Pointer = NULL;
+Present_Prototype              Present_Pointer = NULL;
+BeginScene_Prototype           BeginScene_Pointer = NULL;
 EndScene_Prototype             EndScene_Pointer = NULL;
 DrawIndexedPrimitive_Prototype DrawIndexedPrimitive_Pointer = NULL;
 CreateQuery_Prototype          CreateQuery_Pointer = NULL;
 
 LPD3DXFONT g_font_default;
-LPDIRECT3DTEXTURE9 texture_Red, texture_Black;
-IDirect3DPixelShader9 *Front, *Back;
-
-
-int aimheight = 0;
-bool isInitalized = false;
-D3DVIEWPORT9 g_ViewPort;
-
 class CDraw CDraw;
 
-
-struct ModelInfo_t
+HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3DDEVTYPE DeviceType, HWND FocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* PresentationParameters, LPDIRECT3DDEVICE9* Returned_Device_Interface)
 {
-	D3DXVECTOR3 Position2D;
-	D3DXVECTOR3 Position3D;
-	float Distance;
-	D3DPRIMITIVETYPE Type;
-	INT BaseIndex; 
-	UINT MinIndex; 
-	UINT NumVertices; 
-	UINT StartIndex; 
-	UINT PrimitiveCount;
-};
+	HRESULT Returned_Result = CreateDevice_Pointer(Direct3D_Object, Adapter, DeviceType, FocusWindow, BehaviorFlags, PresentationParameters, Returned_Device_Interface);
+	DWORD dwProtect;
+	if (VirtualProtect(&Direct3D_VMTable[16], sizeof(DWORD), PAGE_READWRITE, &dwProtect) != 0)
+	{
+		*(PDWORD)&Direct3D_VMTable[16] = *(PDWORD)&CreateDevice_Pointer;
+		CreateDevice_Pointer = NULL;
 
-vector<ModelInfo_t*>ModelInfo;
+		if (VirtualProtect(&Direct3D_VMTable[16], sizeof(DWORD), dwProtect, &dwProtect) == 0)
+			return D3DERR_INVALIDCALL;
+	}
+	else
+		return D3DERR_INVALIDCALL;
 
-void PrintText(LPD3DXFONT Font, long x, long y, D3DCOLOR fontColor, char *text, ...)
-{
-	RECT rct;
-	rct.left = x - 1;
-	rct.right = x + 1;
-	rct.top = y - 1;
-	rct.bottom = y + 1;
+	if (Returned_Result == D3D_OK) {
+		Direct3D_VMTable = (PDWORD)*(PDWORD)*Returned_Device_Interface;
 
-	if (!text) { return; }
+		*(PDWORD)&Reset_Pointer = (DWORD)Direct3D_VMTable[16];
+		*(PDWORD)&Present_Pointer = (DWORD)Direct3D_VMTable[17];
+		*(PDWORD)&BeginScene_Pointer = (DWORD)Direct3D_VMTable[41];
+		*(PDWORD)&EndScene_Pointer = (DWORD)Direct3D_VMTable[42];
+		*(PDWORD)&DrawIndexedPrimitive_Pointer = (DWORD)Direct3D_VMTable[82];
+		*(PDWORD)&CreateQuery_Pointer = (DWORD)Direct3D_VMTable[118];
 
-	char buf[256] = { 0 };
-	RECT FontRect = { x, y, x, y };
-	va_list va_alist;
-	va_start(va_alist, text);
-	vsprintf(buf, text, va_alist);
-	va_end(va_alist);
-	g_font_default->DrawTextA(NULL, buf, -1, &rct, DT_NOCLIP, fontColor);
-}
+		if (CreateThread(NULL, 0, VirtualMethodTableRepatchingLoopToCounterExtensionRepatching, NULL, 0, NULL) == NULL)
+			return D3DERR_INVALIDCALL;
+	}
 
-float GetDistance(float Xx, float Yy, float xX, float yY)
-{
-	return sqrt((yY - Yy) * (yY - Yy) + (xX - Xx) * (xX - Xx));
-}
-
-void DrawPoint(LPDIRECT3DDEVICE9 pDevice, int baseX, int baseY, int baseW, int baseH, D3DCOLOR Cor)
-{
-	D3DRECT BarRect = { baseX, baseY, baseX + baseW, baseY + baseH };
-	pDevice->Clear(1, &BarRect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, Cor, 0, 0);
+	return Returned_Result;
 }
 
 HRESULT WINAPI Direct3DCreate9_VMTable(VOID)
 {
-	console.startConsole();
-	console.logMessage("Console Started...\n", 0);
+	console::start();
+	console::message("Console Started...\n", 0);
 
 	LPDIRECT3D9 Direct3D_Object = Direct3DCreate9(D3D_SDK_VERSION);//get D3D DeviceObject Pointer
 
@@ -107,78 +165,25 @@ HRESULT WINAPI Direct3DCreate9_VMTable(VOID)
 	return D3D_OK;
 }
 
-HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3DDEVTYPE DeviceType, HWND FocusWindow,
-	DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* PresentationParameters,
-	LPDIRECT3DDEVICE9* Returned_Device_Interface)
-{
-	HRESULT Returned_Result = CreateDevice_Pointer(Direct3D_Object, Adapter, DeviceType, FocusWindow, BehaviorFlags,
-		PresentationParameters, Returned_Device_Interface);
 
-	DWORD dwProtect;
-
-	if (VirtualProtect(&Direct3D_VMTable[16], sizeof(DWORD), PAGE_READWRITE, &dwProtect) != 0)
-	{
-		*(PDWORD)&Direct3D_VMTable[16] = *(PDWORD)&CreateDevice_Pointer;
-		CreateDevice_Pointer = NULL;
-
-		if (VirtualProtect(&Direct3D_VMTable[16], sizeof(DWORD), dwProtect, &dwProtect) == 0)
-			return D3DERR_INVALIDCALL;
-	}
-	else
-		return D3DERR_INVALIDCALL;
-
-	if (Returned_Result == D3D_OK)
-	{
-		Direct3D_VMTable = (PDWORD)*(PDWORD)*Returned_Device_Interface;
-
-		*(PDWORD)&Reset_Pointer = (DWORD)Direct3D_VMTable[16];
-		*(PDWORD)&EndScene_Pointer = (DWORD)Direct3D_VMTable[42];
-		*(PDWORD)&DrawIndexedPrimitive_Pointer = (DWORD)Direct3D_VMTable[82];
-		*(PDWORD)&CreateQuery_Pointer = (DWORD)Direct3D_VMTable[118];
-
-		if (CreateThread(NULL, 0, VirtualMethodTableRepatchingLoopToCounterExtensionRepatching, NULL, 0, NULL) == NULL)
-			return D3DERR_INVALIDCALL;
-	}
-
-	return Returned_Result;
-}
 
 HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
+	HRESULT r = NULL;
 	CDraw.GetDevice(pDevice);
 	g_font_default->OnLostDevice();
 	g_font_default->OnResetDevice();
 
-	return Reset_Pointer(pDevice, pPresentationParameters);
+	function::menu::isMENU = false;
+
+	//free imgui resources
+	ImGui_ImplDX9_InvalidateDeviceObjects();
+	r = Reset_Pointer(pDevice, pPresentationParameters);
+	ImGui_ImplDX9_CreateDeviceObjects();
+
+	return r;
 }
 
-HRESULT GenerateTexture(IDirect3DDevice9 *pD3Ddev, IDirect3DTexture9 **ppD3Dtex, DWORD colour32)
-{
-	if (FAILED(pD3Ddev->CreateTexture(8, 8, 1, 0, D3DFMT_A4R4G4B4, D3DPOOL_MANAGED, ppD3Dtex, NULL)))
-		return E_FAIL;
-
-	WORD colour16 = ((WORD)((colour32 >> 28) & 0xF) << 12)
-		| (WORD)(((colour32 >> 20) & 0xF) << 8)
-		| (WORD)(((colour32 >> 12) & 0xF) << 4)
-		| (WORD)(((colour32 >> 4) & 0xF) << 0);
-	D3DLOCKED_RECT d3dlr;
-	(*ppD3Dtex)->LockRect(0, &d3dlr, 0, 0);
-	WORD *pDst16 = (WORD*)d3dlr.pBits;
-	for (int xy = 0; xy < 8 * 8; xy++)
-		*pDst16++ = colour16;
-	(*ppD3Dtex)->UnlockRect(0);
-	return S_OK;
-}
-
-HRESULT CreateMyShader(IDirect3DPixelShader9 **pShader, IDirect3DDevice9 *Device, float red, float green, float blue, float alpha)
-{
-	ID3DXBuffer *MyBuffer = NULL;
-	char MyShader[256];
-	sprintf(MyShader, "ps.1.1\ndef c0, %f, %f, %f, %f\nmov r0,c0", red / 255, green / 255, blue / 255, alpha / 255);
-	D3DXAssembleShader(MyShader, sizeof(MyShader), NULL, NULL, 0, &MyBuffer, NULL);
-	if (FAILED(Device->CreatePixelShader((const DWORD*)MyBuffer->GetBufferPointer(), pShader)))return E_FAIL;
-	return S_OK;
-}
 
 void wallhack_ghostChams(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, UINT MinIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount) {
 	//Device_Interface->SetPixelShader(Back);
@@ -208,150 +213,48 @@ void wallhack_ghostChams(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT B
 	//Device_Interface->SetPixelShader(Back);
 }
 
-void AddModel(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE Type, INT BaseIndex, UINT MinIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount)
+HRESULT WINAPI Present_Detour(IDirect3DDevice9 *pDevice, CONST RECT *pSourceRect, CONST RECT *pDestRect, HWND hDestWindowOverride, CONST RGNDATA *pDirtyRegion)
 {
-	ModelInfo_t* pModel = new ModelInfo_t;
-
-	pDevice->GetViewport(&g_ViewPort);
-
-	D3DXMATRIX pProjection, pView, pWorld;
-	D3DXVECTOR3 vOut(0, 0, 0), vIn(0, (float)aimheight, 1);
-
-	pDevice->GetVertexShaderConstantF(0, pProjection, 4);
-	pDevice->GetVertexShaderConstantF(230, pView, 4);
-
-	D3DXMatrixIdentity(&pWorld);
-
-	D3DXVECTOR3 VectorMiddle(0, 0, 0), ScreenMiddlee(0, 0, 0);
-	D3DXVec3Unproject(&VectorMiddle, &ScreenMiddlee, &g_ViewPort, &pProjection, &pView, &pWorld);
-
-	D3DXVec3Project(&vOut, &vIn, &g_ViewPort, &pProjection, &pView, &pWorld);
-
-	float RealDistance = GetDistance(VectorMiddle.x, VectorMiddle.y, vIn.x, vIn.y) / 100;
-
-	if (vOut.z < 1.0f)
-	{
-		pModel->Position2D.y = vOut.y;
-		pModel->Position2D.x = vOut.x;
-		pModel->Position2D.z = vOut.z;
-		pModel->Distance = RealDistance;
-		pModel->Type = Type;
-		pModel->BaseIndex = BaseIndex;
-		pModel->MinIndex = MinIndex;
-		pModel->NumVertices = NumVertices;
-		pModel->StartIndex = StartIndex;
-		pModel->PrimitiveCount = PrimitiveCount;
-	}
-
-	ModelInfo.push_back(pModel);
+	menu::initMenu(pDevice);
+	aimbot::Release();
+	return Present_Pointer(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
-int foundnum = 0;
-float mouseOffset_X = 0, mouseOffset_Y = 0;
-float ScreenCenterX = NULL, ScreenCenterY = NULL;
-float mouseSmooth=2.5, minCrosshairDistance;
-
+HRESULT WINAPI BeginScene_Detour(LPDIRECT3DDEVICE9 *pDevice)
+{
+	return BeginScene_Pointer(pDevice);
+}
 
 HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 {
-	if (texture_Red == NULL) GenerateTexture(pDevice, &texture_Red, D3DCOLOR_ARGB(255, 255, 0, 0));
-	if (texture_Black == NULL) GenerateTexture(pDevice, &texture_Black, D3DCOLOR_ARGB(255, 0, 0, 0));
-	if (g_font_default == NULL)	D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default); //Create fonts
+	menu::MenuRender();
 
-	if (fCall)
-	{
-		CreateMyShader(&Front, pDevice, 255, 0, 0, 255);
-		CreateMyShader(&Back, pDevice, 0, 255, 0, 255);
-		fCall = false;
+	//create new font for drawing text
+	if (g_font_default == NULL) {
+		//Create fonts
+		D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default);
 	}
 
-	if (d3dmenu.g_font == NULL) {
-		d3dmenu.g_font = g_font_default;
-		d3dmenu.additem("AVA Hack @2018", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[MENU]", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[F4] WallHack", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[F5] ChangeName", D3DCOLOR_ARGB(255, 255, 000, 000));
-		d3dmenu.additem("[F6] QQMacro", D3DCOLOR_ARGB(255, 255, 000, 000));
+	//do aimbot
+	if (menu::item::checkbox_aimbot) {
+		//find the best target then move crosshair to the target
+		function::aimbot::SearchTarget(pDevice);
+		function::aimbot::doAim();
 	}
 
-	if (menu)
-	{
-		/*
-		DrawString(1, 1, D3DCOLOR_ARGB(255, 000, 255, 000), "AVA HACK @2018");
-		DrawString(1, 40, D3DCOLOR_ARGB(255, 000, 255, 000), "[MENU]");
-		DWORD colorGreen = D3DCOLOR_ARGB(255, 000, 255, 000), colorRed = D3DCOLOR_ARGB(255, 255, 000, 000);
-		if (func_wallhack) DrawString(1, 60, colorGreen, "WallHack [On]"); else DrawString(1, 60, colorRed ,"WallHack [Off]");
-		if (func_changename) DrawString(1, 80, colorGreen, "ChangeName [On]"); else DrawString(1, 80, colorRed, "ChangeName [Off]");
-		*/
-
-		d3dmenu.drawMenu();
+	//toggle menu
+	if ( (GetAsyncKeyState(VK_HOME) & 0x1) && utils::isFocusOnAVA() ) {
+		menu::isMENU = !menu::isMENU;
+	}else if( menu::isMENU && utils::isFocusOnAVA() && (GetAsyncKeyState(VK_ESCAPE) & 0x1) ){
+		menu::isMENU = false;
 	}
 
-
-	foundnum = 0;
-	minCrosshairDistance = 500;
-
-	ModelInfo_t* TargetModel = new ModelInfo_t;
-	if (ModelInfo.size() != NULL)
-	{
+	if (menu::item::checkbox_QQMacro) {
 		D3DDEVICE_CREATION_PARAMETERS cparams;
 		RECT rect;
 		pDevice->GetCreationParameters(&cparams);
 		GetWindowRect(cparams.hFocusWindow, &rect);
-		if (ScreenCenterX == NULL) ScreenCenterX = (rect.right - rect.left) / 2.0f;
-		if (ScreenCenterY == NULL) ScreenCenterY = (rect.bottom - rect.top) / 2.0f;
-
-		for (size_t i = 0; i < ModelInfo.size(); i++)
-		{
-			
-			DrawPoint(pDevice, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y, 4, 4, D3DCOLOR_XRGB(255, 0, 0));
-			PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x, (int)ModelInfo[i]->Position2D.y - 35, D3DCOLOR_XRGB(255, 0, 0),
-				"%.1f m",
-				ModelInfo[i]->Distance);
-			
-			if (minCrosshairDistance > GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
-				&& GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300) {
-				TargetModel->Position2D.x = ModelInfo[i]->Position2D.x;
-				TargetModel->Position2D.y = ModelInfo[i]->Position2D.y;
-				TargetModel->Position2D.z = ModelInfo[i]->Position2D.z;
-				TargetModel->Type = ModelInfo[i]->Type;
-				TargetModel->BaseIndex = ModelInfo[i]->BaseIndex;
-				TargetModel->MinIndex = ModelInfo[i]->MinIndex;
-				TargetModel->NumVertices = ModelInfo[i]->NumVertices;
-				TargetModel->StartIndex = ModelInfo[i]->StartIndex;
-				TargetModel->PrimitiveCount = ModelInfo[i]->PrimitiveCount;
-				minCrosshairDistance = GetDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
-				foundnum++;
-			}
-
-		}
-
-		ModelInfo.clear();
-	}
-
-	if (GetAsyncKeyState(0x4) && foundnum > 0 ) {
-
-		//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
-		CDraw.Circle(TargetModel->Position2D.x, TargetModel->Position2D.y, 20, 0, full, true, 3, LAWNGREEN(255));
-		
-		mouseOffset_X = (TargetModel->Position2D.x - ScreenCenterX) / mouseSmooth;
-		mouseOffset_Y = (TargetModel->Position2D.y - ScreenCenterY + 17) / mouseSmooth;
-
-		if (mouseOffset_X >= 50)
-			mouseOffset_X = (TargetModel->Position2D.x - ScreenCenterX) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
-
-		if (mouseOffset_Y >= 50)
-			mouseOffset_Y = (TargetModel->Position2D.y - ScreenCenterY + 17) / ((mouseSmooth * 0.5f) < 1 ? 1 : (mouseSmooth * 0.5f));
-
-		mouseOffset_X += 3;
-
-		printf("ScreenCenterX:%f ScreenCenterY:%f\n", ScreenCenterX, ScreenCenterY);
-		printf("minX:%f minY:%f minDistance:%f\n", TargetModel->Position2D.x, TargetModel->Position2D.y, minCrosshairDistance);
-		printf("mouseOffset X:%f Y:%f (actual: X:%f Y:%f)\n", (TargetModel->Position2D.x - ScreenCenterX), (TargetModel->Position2D.y - ScreenCenterY), mouseOffset_X, mouseOffset_Y);
-		printf("\n");
-
-		mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X, mouseOffset_Y , 0, 0);
-
+		CDraw.CircleFilled( ((rect.right - rect.left) / 2.0f) - 3.0f , ((rect.bottom - rect.top) / 2.0f) - 14.0f , 3, 0, full , 4, PURPLE(200) );
 	}
 
 	return EndScene_Pointer(pDevice);
@@ -364,47 +267,35 @@ HRESULT WINAPI DrawIndexedPrimitive_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITI
 
 	if (pDevice->GetStreamSource(0, &Stream_Data, &Offset, &Stride) == D3D_OK) Stream_Data->Release();
 
-
-
-
-	if (func_wallhack && Stride == 32 && StartIndex == 0)
+	if ( (menu::item::checkbox_wallhack && (Stride == 32 || Stride == 88) && StartIndex == 0 && !unWanted) )
 	{
 		wallhack_ghostChams(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
-		if (characterHEAD) {
-			AddModel(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
+
+		//if model is head add to target list
+		if (   (GetAsyncKeyState(0x45) && menu::item::checkbox_debugMode) 
+			|| (characterHEAD && menu::item::checkbox_aimbot) ) {
+			function::aimbot::AddModel(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 		}
 	}
 
-
-	if (GetAsyncKeyState(VK_NUMPAD2) & 1)
-	{
-		mouseSmooth += 0.1f;
-		cout << "mouseSmooth:" << mouseSmooth << endl;
-	}
-
-	if (GetAsyncKeyState(VK_NUMPAD8) & 1)
-	{
-		mouseSmooth -= 0.1f;
-		cout << "mouseSmooth:" << mouseSmooth << endl;
-	}
 
 	return DrawIndexedPrimitive_Pointer(pDevice, Type, BaseIndex, MinIndex, NumVertices, StartIndex, PrimitiveCount);
 }
 
 HRESULT WINAPI CreateQuery_Detour(LPDIRECT3DDEVICE9 pDevice, D3DQUERYTYPE Type, IDirect3DQuery9** ppQuery)
 {
-
-		if (Type == D3DQUERYTYPE_OCCLUSION)
-		{
-			Type = D3DQUERYTYPE_TIMESTAMP;
-		}
-	
+	if (Type == D3DQUERYTYPE_OCCLUSION) {
+		Type = D3DQUERYTYPE_TIMESTAMP;
+	}
 	return CreateQuery_Pointer(pDevice, Type, ppQuery);
 }
 
 void hookD3Dfunction() {
 	*(PDWORD)&Direct3D_VMTable[16] = (DWORD)Reset_Detour;
+	*(PDWORD)&Direct3D_VMTable[17] = (DWORD)Present_Detour;
+	*(PDWORD)&Direct3D_VMTable[41] = (DWORD)BeginScene_Detour;
 	*(PDWORD)&Direct3D_VMTable[42] = (DWORD)EndScene_Detour;
 	*(PDWORD)&Direct3D_VMTable[82] = (DWORD)DrawIndexedPrimitive_Detour;
 	*(PDWORD)&Direct3D_VMTable[118] = (DWORD)CreateQuery_Detour;
+	
 }

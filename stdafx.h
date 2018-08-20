@@ -15,6 +15,7 @@
 #include <tchar.h>
 #include <ctime>
 #include <string.h>
+#include <vector>
 
 #include <iomanip>
 
@@ -25,3 +26,4 @@
 #pragma comment(lib, "d3dx9.lib")
 
 // TODO: reference additional headers your program requires here
+using namespace std;

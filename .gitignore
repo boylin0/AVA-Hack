@@ -261,4 +261,5 @@ __pycache__/
 *.pyc
 
 # customFile
-copyTo_ava.bat
+copy_debug.bat
+copy_release.bat
