@@ -4,8 +4,10 @@
 #include "newMenu.h"
 #include "utils.h"
 
-#define infoBaseAddress     0x0242F044    //00 00 EF 28 18 57 C2 20 00 00 00 00 00 00
-#define weaponBaseAddress   0x0244BFEC	  //00 A8 7F 90 40 1A 4C 18 01 00 00 00 00 00 00 00
+//#define infoBaseAddress     0x0242F044    //00 00 EF 28 18 57 C2 20 00 00 00 00 00 00
+#define infoBaseAddress     0x024370F8    //00 00 EF 28 18 57 C2 20 00 00 00 00 00 00
+//#define weaponBaseAddress   0x0244BFEC	  //00 A8 7F 90 40 1A 4C 18 01 00 00 00 00 00 00 00
+#define weaponBaseAddress   0x024540D4	  //00 A8 7F 90 40 1A 4C 18 01 00 00 00 00 00 00 00
 
 using namespace function;
 
@@ -138,13 +140,14 @@ void DoQQMacro() {
 
 void DoUnlimitAmmo() {
 	if (menu::item::checkbox_unlimitAmmo) {
-		vector<DWORD> offsets = { 0x428, 0x284, 0x7A2 };
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7A2 + 0xC };
+		//vector<DWORD> offsets = { 0x428, 0x288, 0x7AE };
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
 		BYTE myval[1] = { 0x1 };
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
-		offsets = { 0x428, 0x284, 0x338 };
+		offsets = { 0x428, 0x284 + 0x4, 0x338 + 0xC };
 		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
-		myval[1] = { 0x0 };
+		myval[0] = { 0x0 };
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
 	}
 }
@@ -152,27 +155,27 @@ void DoUnlimitAmmo() {
 void DoNoSpread() {
 	if (menu::item::checkbox_noSpread) {
 		//sway
-		vector<DWORD> offsets = { 0x428, 0x284, 0x86C };
+		vector<DWORD> offsets = { 0x428, 0x284, 0x86C + 0xC };
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
 		float myval = 0;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
 		//aim accuracy
-		offsets = { 0x428, 0x284, 0x8BC };
+		offsets = { 0x428, 0x284, 0x8BC + 0xC };
 		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
 		int myval2 = 0;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval2, sizeof(myval2), 0);
 		//crossfire size
-		offsets = { 0x428, 0x284, 0x79D };
+		offsets = { 0x428, 0x284, 0x79D + 0xC };
 		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
 		BYTE myval3 = 0x0;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval3, sizeof(myval3), 0);
-		//no Spread (up down)
-		offsets = { 0x428, 0x284, 0x9AF };
+		//no Spread (up down) error
+		offsets = { 0x428, 0x284, 0x9AF + 0xC };
 		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
 		BYTE myval4 = 0x0;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval4, sizeof(myval4), 0);
 		//no Spread (left right)
-		offsets = { 0x428, 0x284, 0x9AB };
+		offsets = { 0x428, 0x284, 0x9AB + 0xC };
 		p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
 		BYTE myval5 = 0x0;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval5, sizeof(myval5), 0);
@@ -183,7 +186,7 @@ void DoUAVHack() {
 	static bool isUav = false;
 	if (menu::item::checkbox_UAV) {
 		//UAV
-		vector<DWORD> offsets = { 0x428, 0x284, 0x7B6 };
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7B6 + 0xC };
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
 		BYTE myval = 0x50;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
@@ -191,7 +194,7 @@ void DoUAVHack() {
 	}
 	else if(isUav) {
 		//UAV
-		vector<DWORD> offsets = { 0x428, 0x284, 0x7B6 };
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7B6 + 0xC };
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
 		BYTE myval = 0xC0;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
@@ -204,20 +207,52 @@ void DoSuperWeapon() {
 	static int original_val = 0 ;
 	if (menu::item::checkbox_SuperWeapon) {
 		//SuperWeapon
-		vector<DWORD> offsets = { 0x428, 0x284, 0x7BC };
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7BC + 0xC };
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
-		int myval = 100;
+		int myval = 50;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &myval, sizeof(myval), 0);
 		if (isSuperWeapon == false) ReadProcessMemory(utils::hProcess, (LPCVOID)p, &original_val, sizeof(original_val), 0);
 		isSuperWeapon = true;
 	}
 	else if(isSuperWeapon){
 		//restore SuperWeapon
-		vector<DWORD> offsets = { 0x428, 0x284, 0x7BC };
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7BC + 0xC };
 		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
 		if (original_val == 0) original_val = 1;
 		WriteProcessMemory(utils::hProcess, (LPVOID)p, &original_val, sizeof(original_val), 0);
 		isSuperWeapon = false;
+	}
+}
+
+void DoAntiReport() {
+	if (menu::item::checkbox_antiReport) {
+		vector<DWORD> offsets = { 0x90, 0x0 };
+		BYTE v[1] = { 0x0 };
+		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + infoBaseAddress, offsets);
+		ReadProcessMemory(utils::hProcess, (LPCVOID)p, &v, sizeof(v), 0);
+		if (v[0] == 0x6) {
+			v[0] = 0x5;
+			WriteProcessMemory(utils::hProcess, (LPVOID)p, &v, sizeof(v), 0);
+		}
+
+		if (v[0] == 0x5) {
+			DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+			ReadProcessMemory(utils::hProcess, (LPCVOID)p, &v, sizeof(v), 0);
+			if (v[0] > 1) {
+				v[0] = 0x6;
+				DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+				WriteProcessMemory(utils::hProcess, (LPVOID)p, &v, sizeof(v), 0);
+			}
+		}
+	}
+}
+
+void DoFastReload() {
+	if (menu::item::checkbox_fastReload) {
+		vector<DWORD> offsets = { 0x428, 0x284, 0x7A2 + 0xC + 0x2B2 };
+		DWORD p = memory.readPointer(utils::hProcess, utils::baseAddress + weaponBaseAddress, offsets);
+		BYTE val[1] = { 0x3c };
+		WriteProcessMemory(utils::hProcess, (LPVOID)p, &val, sizeof(val), 0);
 	}
 }
 
@@ -229,4 +264,6 @@ void DoMemoryHack() {
 	DoNoSpread();
 	DoUAVHack();
 	DoSuperWeapon();
+	DoAntiReport();
+	DoFastReload();
 }

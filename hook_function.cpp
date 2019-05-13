@@ -128,7 +128,7 @@ HRESULT WINAPI CreateDevice_Detour(LPDIRECT3D9 Direct3D_Object, UINT Adapter, D3
 		*(PDWORD)&EndScene_Pointer = (DWORD)Direct3D_VMTable[42];
 		*(PDWORD)&DrawIndexedPrimitive_Pointer = (DWORD)Direct3D_VMTable[82];
 		*(PDWORD)&CreateQuery_Pointer = (DWORD)Direct3D_VMTable[118];
-
+		
 		if (CreateThread(NULL, 0, VirtualMethodTableRepatchingLoopToCounterExtensionRepatching, NULL, 0, NULL) == NULL)
 			return D3DERR_INVALIDCALL;
 	}
@@ -170,7 +170,7 @@ HRESULT WINAPI Direct3DCreate9_VMTable(VOID)
 HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
 	HRESULT r = NULL;
-	CDraw.GetDevice(pDevice);
+	//CDraw.GetDevice(pDevice);
 	g_font_default->OnLostDevice();
 	g_font_default->OnResetDevice();
 
@@ -232,6 +232,7 @@ HRESULT WINAPI EndScene_Detour(LPDIRECT3DDEVICE9 pDevice)
 	//create new font for drawing text
 	if (g_font_default == NULL) {
 		//Create fonts
+		CDraw.GetDevice(pDevice);
 		D3DXCreateFont(pDevice, 15, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, (LPCWSTR)"Arial", &g_font_default);
 	}
 

@@ -36,6 +36,8 @@ namespace function {
 			bool  checkbox_noSpread = false;
 			bool  checkbox_UAV = false;
 			bool  checkbox_SuperWeapon = false;
+			bool  checkbox_antiReport = false;
+			bool  checkbox_fastReload = false;
 			int   slider_Rank = 65;
 			float slider_aimheight = 0;
 			float slider_aimspeed = 4;
@@ -130,6 +132,12 @@ namespace function {
 				ImGui::Separator();
 
 				ImGui::Checkbox(u8"超級武器", &item::checkbox_SuperWeapon);
+				ImGui::Separator();
+
+				ImGui::Checkbox(u8"防止檢舉", &item::checkbox_antiReport);
+				ImGui::Separator();
+				
+				ImGui::Checkbox(u8"零秒換彈", &item::checkbox_fastReload);
 				ImGui::Separator();
 
 				ImGui::Checkbox(u8"自動切槍[F4]", &item::checkbox_QQMacro);

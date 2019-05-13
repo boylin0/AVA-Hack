@@ -97,7 +97,7 @@ namespace function {
 				pModel->Position2D.y = vOut.y;
 				pModel->Position2D.x = vOut.x;
 				pModel->Position2D.z = vOut.z;
-				pModel->Distance = RealDistance;
+				pModel->Distance = RealDistance; //m
 				pModel->Type = Type;
 				pModel->BaseIndex = BaseIndex;
 				pModel->MinIndex = MinIndex;
@@ -126,12 +126,12 @@ namespace function {
 				RECT rect;
 				pDevice->GetCreationParameters(&cparams);
 				GetWindowRect(cparams.hFocusWindow, &rect);
+				
 				if (ScreenCenterX == NULL || ScreenCenterX != (rect.right - rect.left) / 2.0f) ScreenCenterX = (rect.right - rect.left) / 2.0f;
 				if (ScreenCenterY == NULL || ScreenCenterY != (rect.bottom - rect.top) / 2.0f) ScreenCenterY = (rect.bottom - rect.top) / 2.0f;
 
 				for (size_t i = 0; i < ModelInfo.size(); i++)
 				{
-					
 					PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x - 10, (int)ModelInfo[i]->Position2D.y, D3DCOLOR_XRGB(255, 0, 0),
 						"%.1f m",
 						ModelInfo[i]->Distance);
@@ -153,7 +153,7 @@ namespace function {
 							&& ModelInfo[i]->PrimitiveCount == focusModel->PrimitiveCount
 							&& minCrosshairDistance > getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY)
 							&& getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY) < 300
-							&& (ModelInfo[i]->Distance < focusModel->Distance + 2.0f && ModelInfo[i]->Distance > focusModel->Distance - 2.0f) ) {
+							&& (ModelInfo[i]->Distance < focusModel->Distance + 2.0f && ModelInfo[i]->Distance > focusModel->Distance - 2.0f)) {
 							focusModel->Distance = ModelInfo[i]->Distance;
 							targetModel = ModelInfo[i];
 							minCrosshairDistance = getDistance(ModelInfo[i]->Position2D.x, ModelInfo[i]->Position2D.y, ScreenCenterX, ScreenCenterY);
@@ -176,16 +176,18 @@ namespace function {
 
 		void doAim() {
 			if (GetAsyncKeyState(0x4) && utils::isFocusOnAVA()) {
+				printf("%d in file %s\n", __LINE__, __FILE__);
 				if (isFoundTarget) {
+					printf("%d in file %s\n", __LINE__, __FILE__);
+					printf("targetModel->Position2D.x:%d targetModel->Position2D.y:%d", targetModel->Position2D.x, targetModel->Position2D.y);
 					//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
-					CDraw.Circle(targetModel->Position2D.x, targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
-					
+					CDraw.Circle((int)targetModel->Position2D.x, (int)targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
+					printf("%d in file %s\n", __LINE__, __FILE__);
 					if(menu::item::checkbox_debugMode)
 					PrintText(g_font_default, (int)targetModel->Position2D.x - 10, (int)targetModel->Position2D.y + 20, LAWNGREEN(255),
 						"NumVertices: %d\nPrimitiveCount: %d",
 						targetModel->NumVertices,
 						targetModel->PrimitiveCount);
-
 
 					mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX +  3 ) / menu::item::slider_aimspeed;
 					mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 14 ) / menu::item::slider_aimspeed;

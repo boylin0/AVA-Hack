@@ -55,6 +55,7 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 
 		//hook d3d
 		hookD3Dfunction();
+
 	}
 
 	return 1;
