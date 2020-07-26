@@ -135,14 +135,14 @@ namespace function {
 					PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x - 10, (int)ModelInfo[i]->Position2D.y, D3DCOLOR_XRGB(255, 0, 0),
 						"%.1f m",
 						ModelInfo[i]->Distance);
-
+#ifdef _DEBUG
 					if ( (GetAsyncKeyState(0x45)) && menu::item::checkbox_debugMode ) {
 						PrintText(g_font_default, (int)ModelInfo[i]->Position2D.x - 10, (int)ModelInfo[i]->Position2D.y + 20, D3DCOLOR_XRGB(255, 0, 0),
 							"NumVertices: %d\nPrimitiveCount: %d",
 							ModelInfo[i]->NumVertices,
 							ModelInfo[i]->PrimitiveCount);
 					}
-
+#endif
 					// check is found target
 					if (isFocusTargetSet) {
 						if (ModelInfo[i]->BaseIndex == focusModel->BaseIndex
@@ -175,23 +175,28 @@ namespace function {
 		}
 
 		void doAim() {
-			if (GetAsyncKeyState(0x4) && utils::isFocusOnAVA()) {
-				printf("%d in file %s\n", __LINE__, __FILE__);
+			if (GetAsyncKeyState(menu::item::aimbotKEY) && utils::isFocusOnAVA() && !menu::isMENU) {
 				if (isFoundTarget) {
+#ifdef _DEBUG
 					printf("%d in file %s\n", __LINE__, __FILE__);
 					printf("targetModel->Position2D.x:%d targetModel->Position2D.y:%d", targetModel->Position2D.x, targetModel->Position2D.y);
+#endif // DEBUG
 					//PrintText(g_font_default, minX, minY, D3DCOLOR_XRGB(0, 255, 0), "Target");
 					CDraw.Circle((int)targetModel->Position2D.x, (int)targetModel->Position2D.y, 15, 0, full, true, 4, LAWNGREEN(255));
-					printf("%d in file %s\n", __LINE__, __FILE__);
+					//printf("%d in file %s\n", __LINE__, __FILE__);
 					if(menu::item::checkbox_debugMode)
+#ifdef _DEBUG
 					PrintText(g_font_default, (int)targetModel->Position2D.x - 10, (int)targetModel->Position2D.y + 20, LAWNGREEN(255),
 						"NumVertices: %d\nPrimitiveCount: %d",
 						targetModel->NumVertices,
 						targetModel->PrimitiveCount);
-
+#endif // DEBUG
 					mouseOffset_X = (targetModel->Position2D.x - ScreenCenterX +  3 ) / menu::item::slider_aimspeed;
 					mouseOffset_Y = (targetModel->Position2D.y - ScreenCenterY + 14 ) / menu::item::slider_aimspeed;
-
+					//printf("targetModel->Position2D.x:%f %d %d %f\n", targetModel->Position2D.x, ScreenCenterX, (targetModel->Position2D.x - ScreenCenterX + 3), menu::item::slider_aimspeed);
+					//printf("mouseOffset_X_calc:%f\n", (targetModel->Position2D.x - ScreenCenterX + 3) / menu::item::slider_aimspeed);
+					mouseOffset_X = 100; // hack fix for X not working...
+					//printf("mouseOffset_X:%d\n", mouseOffset_X);
 					if (mouseOffset_X >= 50)
 						mouseOffset_X = int((targetModel->Position2D.x - ScreenCenterX +  3 ) / ((menu::item::slider_aimspeed * 0.55f) < 1 ? 1 : (menu::item::slider_aimspeed * 0.55f)) + 0.5);
 					//if (mouseOffset_X >= 3 && mouseOffset_X <= 50)
@@ -202,10 +207,12 @@ namespace function {
 					//if (mouseOffset_X >= 3 && mouseOffset_X <= 50)
 					//mouseOffset_Y = int((targetModel->Position2D.y - ScreenCenterY + 14) / ((mouseSmooth * 0.7f) < 1 ? 1 : (mouseSmooth * 0.7f)) + 0.5);
 
+#ifdef _DEBUG
 					printf("ScreenCenterX:%d ScreenCenterY:%d\n", ScreenCenterX, ScreenCenterY);
 					printf("minX:%f minY:%f minDistance:%f\n", targetModel->Position2D.x, targetModel->Position2D.y, minCrosshairDistance);
 					printf("mouseOffset X:%d Y:%d (actual: X:%d Y:%d)\n", int(targetModel->Position2D.x - ScreenCenterX), int(targetModel->Position2D.y - ScreenCenterY), mouseOffset_X, mouseOffset_Y);
 					printf("\n");
+#endif // DEBUG
 
 					mouse_event(MOUSEEVENTF_MOVE, mouseOffset_X, mouseOffset_Y, 0, 0);
 				}

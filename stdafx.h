@@ -16,6 +16,7 @@
 #include <ctime>
 #include <string.h>
 #include <vector>
+#include<map>
 
 #include <iomanip>
 

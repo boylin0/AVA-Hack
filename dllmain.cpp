@@ -9,7 +9,6 @@
 //IMGUI Library
 #include "lib/imgui/imgui.h"
 #include "lib/imgui/imgui_impl_dx9.h"
-
 using namespace function;
 
 
@@ -49,7 +48,8 @@ DWORD WINAPI VirtualMethodTableRepatchingLoopToCounterExtensionRepatching(LPVOID
 		if ( (GetAsyncKeyState(VK_F4) & 0x1) && utils::isFocusOnAVA() ) {
 			function::menu::item::checkbox_QQMacro = !function::menu::item::checkbox_QQMacro;
 		}
-			
+		
+
 		//hack function
 		DoMemoryHack();
 

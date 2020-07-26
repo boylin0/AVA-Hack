@@ -84,8 +84,10 @@ int main(int, char**)
     ImGui_ImplDX9_Init(g_pd3dDevice);
 
     // Setup style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
+    
+	//ImGui::StyleColorsDark();
+    
+	//ImGui::StyleColorsClassic();
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them. 
@@ -102,7 +104,24 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
+	ImGuiStyle* style = &ImGui::GetStyle();
+	
+	style->WindowPadding = ImVec2(15, 15);
+	style->WindowRounding = 1.5f;
+	style->FramePadding = ImVec2(5, 5);
+	style->FrameRounding = 4.0f;
+	style->ItemSpacing = ImVec2(12, 8);
+	style->ItemInnerSpacing = ImVec2(8, 6);
+	style->IndentSpacing = 25.0f;
+	style->ScrollbarSize = 15.0f;
+	style->ScrollbarRounding = 0.0f;
+	style->GrabMinSize = 5.0f;
+	style->GrabRounding = 3.0f;
+
+
 	io.Fonts->AddFontFromFileTTF("font.TTF", 14.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+	ImFont* fontA = io.Fonts->AddFontDefault();
+
 
     bool show_demo_window = true;
     bool show_another_window = false;
@@ -138,19 +157,64 @@ int main(int, char**)
 
 		//test
 		{
-			ImGui::Begin("TEST");
-			ImGui::Text(u8"fsdfsdad我是中文dfd哈哈a");
+            if(io.InputCharacters[0] != '\0'){
+                for (int i = 0; i < 17; i++) {
+                    printf("%d ", io.InputCharacters[i]);
+                }
+                
+                printf("\n");
+            }
+            
+			ImGui::Begin("##title", 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+			ImGui::Text(u8"Title");
 			ImGui::Separator();
 			ImGui::Text("Kanjis: \xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e (nihongo)");
-			static char buf[32] = "\xe6\x97\xa5\xe6\x9c\xac";
+			static char buf[10] = "\xe6\x97\xa5\xe6\x9c\xac";
 			//static char buf[32] = u8"NIHONGO"; // <- this is how you would write it with C++11, using real kanjis
 			ImGui::InputText("名稱", buf, IM_ARRAYSIZE(buf));
 			static float f = 0.0f;
 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f,"%.1f",0.1F);
+			ImGui::SameLine();
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f,"%.1f",0.1F);
+
 			if (ImGui::Button(u8"測試")) {
 				for(int ij=0;ij < (sizeof(buf) / sizeof(char));ij++){
-					printf("%X\n", (unsigned char)buf[ij]);
+					printf("%X ", (unsigned char)buf[ij]);
 				}
+				printf("\n");
+			}
+			if (ImGui::Button(u8"add文字")) {
+				//strcat(buf, "\u200b");
+
+				printf("\n");
+			}
+
+			if (ImGui::Button(u8"count文字")) {
+				printf("len :%d", strlen(buf));
+				printf("\n");
+			}
+
+			ImGui::Separator();
+
+			static ImGuiComboFlags flags = 0;
+			const char* items[] = { "MB", "LB", "E", "ALT" };
+			static const char* item_current = items[0];
+			if (ImGui::BeginCombo("熱鍵", item_current, flags))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				{
+					bool is_selected = (item_current == items[n]);
+					if (ImGui::Selectable(items[n], is_selected))
+						item_current = items[n];
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			if (ImGui::Button(u8"item_current")) {
+				strcat(buf, "\u200b");
+				printf(item_current);
 			}
 
 			ImGui::Separator();

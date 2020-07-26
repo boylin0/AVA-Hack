@@ -175,7 +175,7 @@ HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pP
 	
 
 
-	
+
 
 	function::menu::isMENU = false;
 
