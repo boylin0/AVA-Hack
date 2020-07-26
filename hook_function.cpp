@@ -171,8 +171,11 @@ HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pP
 {
 	HRESULT r = NULL;
 	//CDraw.GetDevice(pDevice);
-	g_font_default->OnLostDevice();
-	g_font_default->OnResetDevice();
+	if(g_font_default != NULL) g_font_default->OnLostDevice();
+	
+
+
+	
 
 	function::menu::isMENU = false;
 
@@ -180,6 +183,11 @@ HRESULT WINAPI Reset_Detour(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pP
 	ImGui_ImplDX9_InvalidateDeviceObjects();
 	r = Reset_Pointer(pDevice, pPresentationParameters);
 	ImGui_ImplDX9_CreateDeviceObjects();
+	if (r == D3D_OK)
+	{
+		if (g_font_default != NULL)
+			g_font_default->OnResetDevice();
+	}
 
 	return r;
 }
