@@ -2,7 +2,7 @@
 
 Hack for alliance of valiant arms
 
-### Featrues
+### Features
   - wallhack
   - D3D object based aimbot
   - Memory Hack
